@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
+import { getSupabasePublicConfig } from "@/lib/supabase/config";
 import { canAccessFacolubPath, defaultFacolubPath } from "./authorization";
 
 const allRoutes = [
@@ -61,5 +62,37 @@ describe("FACOLUB authorization matrix", () => {
     expect(defaultFacolubPath("admin")).toBe("/facolub");
     expect(defaultFacolubPath("management")).toBe("/facolub");
     expect(defaultFacolubPath("factory")).toBe("/facolub/today");
+  });
+
+  test("Supabase public config can be read from runtime environment variables", () => {
+    const previousUrl = process.env["SUPABASE_URL"];
+    const previousKey = process.env["SUPABASE_PUBLISHABLE_KEY"];
+    const previousViteUrl = process.env["VITE_SUPABASE_URL"];
+    const previousViteKey = process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+
+    try {
+      delete process.env["VITE_SUPABASE_URL"];
+      delete process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+      process.env["SUPABASE_URL"] = "https://example.supabase.co";
+      process.env["SUPABASE_PUBLISHABLE_KEY"] = "pub-key";
+
+      expect(getSupabasePublicConfig()).toEqual({
+        url: "https://example.supabase.co",
+        publishableKey: "pub-key",
+        origin: "https://example.supabase.co",
+      });
+    } finally {
+      if (previousUrl === undefined) delete process.env["SUPABASE_URL"];
+      else process.env["SUPABASE_URL"] = previousUrl;
+
+      if (previousKey === undefined) delete process.env["SUPABASE_PUBLISHABLE_KEY"];
+      else process.env["SUPABASE_PUBLISHABLE_KEY"] = previousKey;
+
+      if (previousViteUrl === undefined) delete process.env["VITE_SUPABASE_URL"];
+      else process.env["VITE_SUPABASE_URL"] = previousViteUrl;
+
+      if (previousViteKey === undefined) delete process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+      else process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] = previousViteKey;
+    }
   });
 });

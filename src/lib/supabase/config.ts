@@ -1,8 +1,32 @@
 export type SupabasePublicConfig = { url: string; publishableKey: string; origin: string };
 
+function readEnvValue(...keys: string[]) {
+  const env = typeof process !== "undefined" ? process.env : undefined;
+  for (const key of keys) {
+    const directValue = env?.[key]?.trim();
+    if (directValue) return directValue;
+
+    const importMetaValue = import.meta.env?.[key]?.trim();
+    if (importMetaValue) return importMetaValue;
+  }
+
+  return null;
+}
+
 export function getSupabasePublicConfig(): SupabasePublicConfig | null {
-  const url = import.meta.env["VITE_SUPABASE_URL"]?.trim();
-  const publishableKey = import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"]?.trim();
+  const url = readEnvValue(
+    "VITE_SUPABASE_URL",
+    "SUPABASE_URL",
+    "PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_URL",
+  );
+  const publishableKey = readEnvValue(
+    "VITE_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+    "PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  );
+
   if (!url || !publishableKey) return null;
 
   try {
