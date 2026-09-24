@@ -181,3 +181,241 @@
     letter-spacing: 0;
   }
 }
+
+@layer components {
+  .soma-invoice {
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 210mm);
+    min-height: 297mm;
+    background: white;
+    color: #1c1c1c;
+    padding: 18mm 16mm 14mm;
+    box-shadow: 0 1px 12px rgb(0 0 0 / 10%);
+  }
+
+  .soma-invoice-header {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: 13mm;
+    align-items: start;
+  }
+
+  .soma-invoice-logo {
+    display: block;
+    width: 75mm;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .soma-seller-copy {
+    margin-top: 8mm;
+    font-size: 0.7rem;
+    line-height: 1.55;
+  }
+
+  .soma-seller-heading,
+  .soma-seller-name {
+    font-weight: 800;
+  }
+
+  .soma-seller-heading {
+    margin-bottom: 0.8mm;
+  }
+
+  .soma-meta-box,
+  .soma-client-box {
+    border: 1px dotted #777;
+    font-size: 0.72rem;
+  }
+
+  .soma-meta-box {
+    width: 64%;
+    margin-left: auto;
+  }
+
+  .soma-meta-box div,
+  .soma-client-box div {
+    display: grid;
+    grid-template-columns: 34mm minmax(0, 1fr);
+    min-height: 8mm;
+    align-items: center;
+    border-bottom: 1px dotted #aaa;
+    padding: 1.5mm 3mm;
+  }
+
+  .soma-meta-box div {
+    grid-template-columns: 24mm minmax(0, 1fr);
+  }
+
+  .soma-meta-box dd {
+    white-space: nowrap;
+  }
+
+  .soma-meta-box div:last-child,
+  .soma-client-box div:last-child {
+    border-bottom: 0;
+  }
+
+  .soma-meta-box dt,
+  .soma-client-box dt {
+    font-weight: 800;
+  }
+
+  .soma-client-box {
+    margin-top: 7mm;
+  }
+
+  .soma-lines-table {
+    margin-top: 10mm;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.72rem;
+  }
+
+  .soma-lines-table th {
+    background: #383838;
+    color: white;
+    padding: 3mm;
+    text-align: left;
+    font-size: 0.65rem;
+    font-style: italic;
+    letter-spacing: 0.03em;
+  }
+
+  .soma-lines-table th:first-child {
+    width: 49%;
+  }
+  .soma-lines-table th:nth-child(2) {
+    width: 12%;
+    text-align: center;
+  }
+  .soma-lines-table th:nth-child(3),
+  .soma-lines-table th:nth-child(4) {
+    width: 19.5%;
+    text-align: right;
+  }
+
+  .soma-lines-table td {
+    border-bottom: 1px solid #ddd;
+    padding: 3.2mm 3mm;
+    vertical-align: top;
+  }
+
+  .soma-lines-table td:nth-child(2) {
+    text-align: center;
+  }
+  .soma-lines-table td:nth-child(3),
+  .soma-lines-table td:nth-child(4) {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .soma-final-total {
+    margin: 7mm 0 0 auto;
+    display: flex;
+    width: 39%;
+    justify-content: space-between;
+    gap: 5mm;
+    border-top: 1.5px solid #222;
+    border-bottom: 1px solid #777;
+    padding: 3mm;
+    color: #111;
+    font-size: 0.82rem;
+    font-weight: 800;
+    break-inside: avoid;
+  }
+
+  .soma-final-total strong {
+    white-space: nowrap;
+  }
+
+  .soma-invoice-footer {
+    margin-top: auto;
+    border-top: 1px solid #777;
+    padding-top: 4mm;
+    text-align: center;
+    font-size: 0.62rem;
+    line-height: 1.55;
+  }
+
+  .soma-invoice-footer > p:first-child {
+    margin-bottom: 3mm;
+    text-align: left;
+    padding-left: 10mm;
+  }
+
+  .soma-tax-label {
+    background: #fff200;
+    font-style: italic;
+    font-weight: 800;
+  }
+
+  .soma-legal-line {
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 720px) {
+  .soma-invoice {
+    min-height: auto;
+    padding: 24px 18px;
+  }
+  .soma-invoice-header {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .soma-final-total {
+    width: min(100%, 300px);
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  .invoice-screen-actions,
+  .facolub-shell-chrome,
+  aside,
+  nav {
+    display: none !important;
+  }
+  .facolub-shell-body {
+    padding-left: 0 !important;
+  }
+  .facolub-content {
+    margin: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .invoice-print-shell {
+    margin: 0;
+  }
+  .soma-invoice {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 16mm 12mm;
+    box-shadow: none;
+  }
+  .soma-lines-table thead {
+    display: table-header-group;
+  }
+  .soma-lines-table tr {
+    break-inside: avoid;
+  }
+  .soma-final-total {
+    break-inside: avoid;
+  }
+  .soma-invoice-footer {
+    break-inside: avoid;
+  }
+}

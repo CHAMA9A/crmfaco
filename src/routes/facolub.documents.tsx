@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderPage } from "@/components/app/pages";
+import { InvoiceWorkspace } from "@/components/invoices/invoice-workspace";
+import { getInvoiceWorkspaceFn } from "@/lib/invoices/functions";
+
 export const Route = createFileRoute("/facolub/documents")({
+  loader: () => getInvoiceWorkspaceFn(),
   head: () => ({
     meta: [
       { title: "Documents — FACOLUB" },
@@ -14,5 +17,9 @@ export const Route = createFileRoute("/facolub/documents")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <PlaceholderPage module="documents" />,
+  component: DocumentsRoute,
 });
+
+function DocumentsRoute() {
+  return <InvoiceWorkspace data={Route.useLoaderData()} />;
+}

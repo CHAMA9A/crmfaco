@@ -255,7 +255,7 @@ export function UserControl({ user }: { user: AuthenticatedUserContext }) {
 function AppHeader({ role }: { role: AppRole }) {
   const user = useAuthenticatedUser();
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
+    <header className="facolub-shell-chrome sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
       <div className="grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 lg:px-6">
         <div className="lg:hidden">
           <MobileMenu role={role} />
@@ -375,7 +375,7 @@ export function FacolubShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       {role !== "factory" && (
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
+        <aside className="facolub-shell-chrome fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
           <div className="border-b border-sidebar-border p-5">
             <BrandMark />
           </div>
@@ -396,12 +396,12 @@ export function FacolubShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
       )}
-      <div className={cn(role !== "factory" && "lg:pl-64")}>
+      <div className={cn("facolub-shell-body", role !== "factory" && "lg:pl-64")}>
         <AppHeader role={role} />
         {role === "factory" && <FactoryDesktopNavigation />}
         <main
           className={cn(
-            "mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8",
+            "facolub-content mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8",
             role === "factory" && "max-w-5xl pb-24 lg:pb-8",
           )}
         >

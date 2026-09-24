@@ -58,6 +58,14 @@ describe("FACOLUB authorization matrix", () => {
     expect(canAccessFacolubPath("management", "/outside")).toBe(false);
   });
 
+  test("invoice detail and preview stay management-only", () => {
+    const detail = "/facolub/documents/invoices/123";
+    const preview = `${detail}/preview`;
+    expect(canAccessFacolubPath("admin", detail)).toBe(true);
+    expect(canAccessFacolubPath("management", preview)).toBe(true);
+    expect(canAccessFacolubPath("factory", detail)).toBe(false);
+  });
+
   test("each role has the correct landing path", () => {
     expect(defaultFacolubPath("admin")).toBe("/facolub");
     expect(defaultFacolubPath("management")).toBe("/facolub");

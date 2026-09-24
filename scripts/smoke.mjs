@@ -12,6 +12,9 @@ const protectedRoutes = [
   "/facolub/planning",
   "/facolub/dispatch",
   "/facolub/analytics",
+  "/facolub/documents",
+  "/facolub/documents/invoices/00000000-0000-4000-8000-000000000001",
+  "/facolub/documents/invoices/00000000-0000-4000-8000-000000000001/preview",
 ];
 const wranglerCli = resolve("node_modules/wrangler/bin/wrangler.js");
 const preview = spawn(process.execPath, [wranglerCli, "dev", "--port", String(port)], {
