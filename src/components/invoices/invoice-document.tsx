@@ -2,7 +2,7 @@ import { ArrowLeft, Download, Eye, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { formatMad } from "@/lib/invoices/money";
+import { calculateInvoiceTotals, formatMad } from "@/lib/invoices/money";
 import {
   downloadInvoicePdf,
   previewInvoicePdf,
@@ -29,6 +29,7 @@ export function InvoiceDocument({
 }) {
   const [pdfAction, setPdfAction] = useState<"preview" | "download" | null>(null);
   const [pdfError, setPdfError] = useState("");
+  const totals = calculateInvoiceTotals(invoice.items.map((item) => item.line_total));
 
   const printInvoice = () => {
     window.focus();
@@ -186,10 +187,20 @@ export function InvoiceDocument({
           </tbody>
         </table>
 
-        <div className="soma-final-total" aria-label="Total de la facture">
-          <span>TOTAL :</span>
-          <strong>{formatMad(invoice.authoritative_total)}</strong>
-        </div>
+        <dl className="soma-final-totals" aria-label="Totaux de la facture">
+          <div>
+            <dt>TOTAL HT</dt>
+            <dd>{formatMad(totals.totalHt)}</dd>
+          </div>
+          <div>
+            <dt>TVA 20%</dt>
+            <dd>{formatMad(totals.tax)}</dd>
+          </div>
+          <div className="soma-total-ttc">
+            <dt>TOTAL TTC</dt>
+            <dd>{formatMad(totals.totalTtc)}</dd>
+          </div>
+        </dl>
 
         <footer className="soma-invoice-footer">
           <p>
@@ -198,7 +209,7 @@ export function InvoiceDocument({
           <p className="soma-legal-line">
             SOMA LUBRIFIANTS S.A.R.L. - Siège social : RES PRIMA OFFICE 105AP ETG3 CASABLANCA -
           </p>
-          <p className="soma-legal-line">Tél : 0661924310 / 0662622485 - ICE : 002894269000071</p>
+          <p className="soma-legal-line">Tél : 0661924310 / 0608931112 - ICE : 002894269000071</p>
         </footer>
       </article>
     </div>

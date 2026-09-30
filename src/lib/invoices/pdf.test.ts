@@ -67,4 +67,31 @@ describe("invoice PDF", () => {
     );
     expect(document.getPageCount()).toBeGreaterThan(1);
   });
+
+  test("adapts to long customer information and long references", async () => {
+    const adaptiveInvoice: InvoiceDocument = {
+      ...testInvoice,
+      customer_name_snapshot:
+        "[TEST] CLIENT INDUSTRIEL AVEC UNE RAISON SOCIALE EXCEPTIONNELLEMENT LONGUE POUR VALIDATION",
+      purchase_order:
+        "PO-2026-VALIDATION-REFERENCE-TRES-LONGUE-AVEC-DES-INFORMATIONS-COMPLEMENTAIRES",
+      customer_address_snapshot:
+        "ZONE INDUSTRIELLE DE TEST, BATIMENT 27, ETAGE 4, BUREAU 418, CASABLANCA - ADRESSE VOLONTAIREMENT LONGUE POUR VERIFIER LE RETOUR A LA LIGNE ET LA HAUTEUR ADAPTATIVE",
+      items: Array.from({ length: 14 }, (_, index) => ({
+        ...testInvoice.items[index % testInvoice.items.length]!,
+        id: String(index),
+        description: `${testInvoice.items[index % testInvoice.items.length]!.description} - DESCRIPTION COMPLEMENTAIRE POUR VERIFIER LA HAUTEUR DYNAMIQUE DE LA LIGNE PRODUIT`,
+        position: index + 1,
+      })),
+    };
+
+    const document = await PDFDocument.load(
+      await (await createInvoicePdfBlob(adaptiveInvoice)).arrayBuffer(),
+    );
+    expect(document.getPageCount()).toBeGreaterThan(1);
+    document.getPages().forEach((page) => {
+      expect(page.getWidth()).toBeCloseTo(595.28, 1);
+      expect(page.getHeight()).toBeCloseTo(841.89, 1);
+    });
+  });
 });

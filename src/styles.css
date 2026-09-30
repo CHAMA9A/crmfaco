@@ -226,12 +226,15 @@
 
   .soma-meta-box,
   .soma-client-box {
-    border: 1px dotted #777;
+    border: 1.25px solid #4b4b4b;
+    border-radius: 5mm;
     font-size: 0.72rem;
+    overflow: hidden;
   }
 
   .soma-meta-box {
     width: 64%;
+    min-height: 21mm;
     margin-left: auto;
   }
 
@@ -240,22 +243,19 @@
     display: grid;
     grid-template-columns: 34mm minmax(0, 1fr);
     min-height: 8mm;
-    align-items: center;
-    border-bottom: 1px dotted #aaa;
-    padding: 1.5mm 3mm;
+    align-items: start;
+    padding: 2mm 3.5mm;
   }
 
   .soma-meta-box div {
     grid-template-columns: 24mm minmax(0, 1fr);
   }
 
-  .soma-meta-box dd {
-    white-space: nowrap;
-  }
-
-  .soma-meta-box div:last-child,
-  .soma-client-box div:last-child {
-    border-bottom: 0;
+  .soma-meta-box dd,
+  .soma-client-box dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .soma-meta-box dt,
@@ -265,6 +265,7 @@
 
   .soma-client-box {
     margin-top: 7mm;
+    min-height: 51mm;
   }
 
   .soma-lines-table {
@@ -313,23 +314,39 @@
     white-space: nowrap;
   }
 
-  .soma-final-total {
+  .soma-final-totals {
     margin: 7mm 0 0 auto;
-    display: flex;
     width: 39%;
-    justify-content: space-between;
-    gap: 5mm;
     border-top: 1.5px solid #222;
     border-bottom: 1px solid #777;
-    padding: 3mm;
+    padding: 2mm 3mm;
     color: #111;
-    font-size: 0.82rem;
-    font-weight: 800;
+    font-size: 0.72rem;
     break-inside: avoid;
   }
 
-  .soma-final-total strong {
+  .soma-final-totals > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 5mm;
+    padding-block: 1.2mm;
+  }
+
+  .soma-final-totals dt {
+    font-weight: 700;
+  }
+
+  .soma-final-totals dd {
     white-space: nowrap;
+    text-align: right;
+  }
+
+  .soma-final-totals .soma-total-ttc {
+    margin-top: 1mm;
+    border-top: 1px solid #777;
+    padding-top: 2mm;
+    font-size: 0.82rem;
+    font-weight: 800;
   }
 
   .soma-invoice-footer {
@@ -367,7 +384,7 @@
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  .soma-final-total {
+  .soma-final-totals {
     width: min(100%, 300px);
   }
 }
@@ -412,7 +429,7 @@
   .soma-lines-table tr {
     break-inside: avoid;
   }
-  .soma-final-total {
+  .soma-final-totals {
     break-inside: avoid;
   }
   .soma-invoice-footer {

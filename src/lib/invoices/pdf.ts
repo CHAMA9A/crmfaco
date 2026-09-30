@@ -1,6 +1,6 @@
 import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
 
-import { formatMad } from "./money";
+import { calculateInvoiceTotals, formatMad } from "./money";
 import type { InvoiceDocument } from "./types";
 
 type PreviewWindow = Window | null;
@@ -145,7 +145,7 @@ function drawLegalFooter(
       font,
       7.2,
     ],
-    ["Tél : 0661924310 / 0662622485 - ICE : 002894269000071", font, 7.2],
+    ["Tél : 0661924310 / 0608931112 - ICE : 002894269000071", font, 7.2],
   ] as const;
   lines.forEach(([text, selectedFont, size], index) => {
     const safeText = pdfText(text);
@@ -167,6 +167,91 @@ async function loadLogo(pdfDocument: import("pdf-lib").PDFDocument) {
   } catch {
     return null;
   }
+}
+
+function drawRoundedBox(
+  page: PDFPage,
+  x: number,
+  top: number,
+  width: number,
+  height: number,
+  rgb: typeof import("pdf-lib").rgb,
+) {
+  const radius = 11;
+  const path = [
+    `M ${radius} 0`,
+    `H ${width - radius}`,
+    `Q ${width} 0 ${width} ${radius}`,
+    `V ${height - radius}`,
+    `Q ${width} ${height} ${width - radius} ${height}`,
+    `H ${radius}`,
+    `Q 0 ${height} 0 ${height - radius}`,
+    `V ${radius}`,
+    `Q 0 0 ${radius} 0`,
+    "Z",
+  ].join(" ");
+  page.drawSvgPath(path, {
+    x,
+    y: top,
+    color: rgb(1, 1, 1),
+    borderColor: rgb(0.29, 0.29, 0.29),
+    borderWidth: 1.1,
+  });
+}
+
+function drawAdaptiveInfoBox(
+  page: PDFPage,
+  rows: Array<[string, string | null]>,
+  options: {
+    x: number;
+    top: number;
+    width: number;
+    minHeight: number;
+    labelWidth: number;
+    fontSize: number;
+    lineHeight: number;
+  },
+  font: PDFFont,
+  bold: PDFFont,
+  rgb: typeof import("pdf-lib").rgb,
+) {
+  const paddingX = 10;
+  const paddingY = 9;
+  const valueWidth = options.width - paddingX * 2 - options.labelWidth;
+  const layouts = rows.map(([label, value]) => {
+    const lines = splitText(value || "—", font, options.fontSize, valueWidth);
+    return {
+      label,
+      lines,
+      height: Math.max(18, lines.length * options.lineHeight + 7),
+    };
+  });
+  const contentHeight = layouts.reduce((total, row) => total + row.height, 0);
+  const height = Math.max(options.minHeight, contentHeight + paddingY * 2);
+  const extraPerRow = Math.max(0, height - paddingY * 2 - contentHeight) / layouts.length;
+
+  drawRoundedBox(page, options.x, options.top, options.width, height, rgb);
+  let rowTop = options.top - paddingY;
+  layouts.forEach((row) => {
+    const baseline = rowTop - options.fontSize;
+    page.drawText(pdfText(row.label), {
+      x: options.x + paddingX,
+      y: baseline,
+      size: options.fontSize,
+      font: bold,
+    });
+    row.lines.forEach((line, index) => {
+      page.drawText(line, {
+        x: options.x + paddingX + options.labelWidth,
+        y: baseline - index * options.lineHeight,
+        size: options.fontSize,
+        font,
+      });
+    });
+    rowTop -= row.height + extraPerRow;
+  });
+
+  return options.top - height;
 }
 
 function drawFirstPageHeader(
@@ -201,54 +286,28 @@ function drawFirstPageHeader(
   drawLabelValue(page, "WhatsApp :", "+212 6 08 93 11 12", PAGE_MARGIN, 682, 55, font, bold);
   drawLabelValue(page, "Email :", "contact@somalubrifiants.com", PAGE_MARGIN, 669, 36, font, bold);
 
-  const boxX = 348;
-  const boxWidth = 211;
-  page.drawRectangle({
-    x: boxX,
-    y: 752,
-    width: boxWidth,
-    height: 54,
-    color: rgb(1, 1, 1),
-    borderColor: rgb(0.08, 0.08, 0.08),
-    borderWidth: 0.8,
-  });
-  page.drawLine({
-    start: { x: boxX, y: 779 },
-    end: { x: boxX + boxWidth, y: 779 },
-    thickness: 0.6,
-  });
-  drawLabelValue(
+  const metaBottom = drawAdaptiveInfoBox(
     page,
-    "DATE :",
-    formatInvoiceDate(invoice.invoice_date),
-    boxX + 9,
-    788,
-    73,
+    [
+      ["DATE :", formatInvoiceDate(invoice.invoice_date)],
+      ["Facture :", invoice.invoice_number ?? "Brouillon"],
+    ],
+    {
+      x: 348,
+      top: 806,
+      width: 211,
+      minHeight: 54,
+      labelWidth: 63,
+      fontSize: 8.2,
+      lineHeight: 10,
+    },
     font,
     bold,
-  );
-  drawLabelValue(
-    page,
-    "Facture :",
-    invoice.invoice_number ?? "Brouillon",
-    boxX + 9,
-    761,
-    73,
-    font,
-    bold,
+    rgb,
   );
 
   const clientBoxX = 330;
   const clientBoxWidth = 229;
-  page.drawRectangle({
-    x: clientBoxX,
-    y: 600,
-    width: clientBoxWidth,
-    height: 136,
-    color: rgb(1, 1, 1),
-    borderColor: rgb(0.08, 0.08, 0.08),
-    borderWidth: 0.8,
-  });
   const clientRows: Array<[string, string | null]> = [
     ["Client :", invoice.customer_name_snapshot],
     ["Commande (PO) :", invoice.purchase_order],
@@ -256,28 +315,34 @@ function drawFirstPageHeader(
     ["Adresse :", invoice.customer_address_snapshot],
     ["ICE :", invoice.customer_ice_snapshot],
   ];
-  let clientY = 716;
-  clientRows.forEach(([label, value]) => {
-    const valueLines = splitText(value || "—", font, 7.4, clientBoxWidth - 91);
-    page.drawText(pdfText(label), { x: clientBoxX + 8, y: clientY, size: 7.4, font: bold });
-    valueLines.forEach((line, index) => {
-      page.drawText(line, {
-        x: clientBoxX + 83,
-        y: clientY - index * 9,
-        size: 7.4,
-        font,
-      });
-    });
-    clientY -= Math.max(17, valueLines.length * 9 + 5);
-  });
+  const clientBottom = drawAdaptiveInfoBox(
+    page,
+    clientRows,
+    {
+      x: clientBoxX,
+      top: metaBottom - 12,
+      width: clientBoxWidth,
+      minHeight: 136,
+      labelWidth: 75,
+      fontSize: 7.4,
+      lineHeight: 9,
+    },
+    font,
+    bold,
+    rgb,
+  );
+
+  const tableTop = Math.min(555, clientBottom - 24);
 
   page.drawText("FACTURE", {
     x: PAGE_MARGIN,
-    y: 578,
+    y: tableTop + 11,
     size: 17,
     font: bold,
     color: rgb(0.08, 0.08, 0.08),
   });
+
+  return tableTop;
 }
 
 export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
@@ -287,11 +352,25 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
   const bold = await pdfDocument.embedFont(StandardFonts.HelveticaBold);
   const logo = await loadLogo(pdfDocument);
   const pages: PDFPage[] = [];
+  const totals = calculateInvoiceTotals(invoice.items.map((item) => item.line_total));
 
   let page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
   pages.push(page);
-  drawFirstPageHeader(page, invoice, font, bold, logo, rgb);
-  let y = drawTableHeader(page, 555, bold, rgb);
+  const firstTableTop = drawFirstPageHeader(page, invoice, font, bold, logo, rgb);
+  let y: number;
+  if (firstTableTop < 160) {
+    page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
+    pages.push(page);
+    page.drawText(pdfText(invoice.invoice_number ?? "Facture brouillon"), {
+      x: PAGE_MARGIN,
+      y: 790,
+      size: 9,
+      font: bold,
+    });
+    y = drawTableHeader(page, 770, bold, rgb);
+  } else {
+    y = drawTableHeader(page, firstTableTop, bold, rgb);
+  }
   const widths = [286, 55, 90, 92] as const;
 
   for (const item of invoice.items) {
@@ -351,7 +430,8 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     y -= rowHeight;
   }
 
-  if (y - 52 < 90) {
+  const totalsHeight = 68;
+  if (y - totalsHeight < 90) {
     page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
     pages.push(page);
     y = 770;
@@ -361,21 +441,33 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
   const totalX = A4_WIDTH - PAGE_MARGIN - totalWidth;
   page.drawRectangle({
     x: totalX,
-    y: y - 42,
+    y: y - totalsHeight,
     width: totalWidth,
-    height: 42,
-    borderWidth: 1.1,
-    borderColor: rgb(0.08, 0.08, 0.08),
+    height: totalsHeight,
+    color: rgb(1, 1, 1),
+    borderWidth: 0.8,
+    borderColor: rgb(0.3, 0.3, 0.3),
   });
-  page.drawText("TOTAL :", { x: totalX + 13, y: y - 26, size: 11, font: bold });
-  drawRightText(
-    page,
-    formatMad(invoice.authoritative_total),
-    totalX + totalWidth - 13,
-    y - 26,
-    bold,
-    11,
-  );
+  const totalRows = [
+    ["TOTAL HT", formatMad(totals.totalHt)],
+    ["TVA 20%", formatMad(totals.tax)],
+    ["TOTAL TTC", formatMad(totals.totalTtc)],
+  ] as const;
+  totalRows.forEach(([label, value], index) => {
+    const baseline = y - 17 - index * 21;
+    const selectedFont = index === 2 ? bold : font;
+    const size = index === 2 ? 9.5 : 8.5;
+    if (index === 2) {
+      page.drawLine({
+        start: { x: totalX + 9, y: y - 43 },
+        end: { x: totalX + totalWidth - 9, y: y - 43 },
+        thickness: 0.7,
+        color: rgb(0.45, 0.45, 0.45),
+      });
+    }
+    page.drawText(label, { x: totalX + 13, y: baseline, size, font: selectedFont });
+    drawRightText(page, value, totalX + totalWidth - 13, baseline, selectedFont, size);
+  });
   drawLegalFooter(page, font, bold, rgb);
 
   pages.forEach((pdfPage, index) => {

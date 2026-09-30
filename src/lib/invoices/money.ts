@@ -14,9 +14,33 @@ export function moneyToMinorUnits(value: string | number): bigint {
 
 export function sumMoney(values: ReadonlyArray<string | number>): string {
   const minorUnits = values.reduce((total, value) => total + moneyToMinorUnits(value), 0n);
+  return minorUnitsToMoney(minorUnits);
+}
+
+function minorUnitsToMoney(minorUnits: bigint): string {
   const sign = minorUnits < 0n ? "-" : "";
   const absolute = minorUnits < 0n ? -minorUnits : minorUnits;
   return `${sign}${absolute / 100n}.${String(absolute % 100n).padStart(2, "0")}`;
+}
+
+export function calculateInvoiceTotals(
+  lineTotals: ReadonlyArray<string | number>,
+  taxPercent = 20,
+) {
+  if (!Number.isInteger(taxPercent) || taxPercent < 0) {
+    throw new Error("Tax percentage must be a non-negative integer");
+  }
+
+  const totalHtMinor = lineTotals.reduce((total, value) => total + moneyToMinorUnits(value), 0n);
+  const unsignedHt = totalHtMinor < 0n ? -totalHtMinor : totalHtMinor;
+  const unsignedTax = (unsignedHt * BigInt(taxPercent) + 50n) / 100n;
+  const taxMinor = totalHtMinor < 0n ? -unsignedTax : unsignedTax;
+
+  return {
+    totalHt: minorUnitsToMoney(totalHtMinor),
+    tax: minorUnitsToMoney(taxMinor),
+    totalTtc: minorUnitsToMoney(totalHtMinor + taxMinor),
+  };
 }
 
 export function formatMad(value: string | number): string {
