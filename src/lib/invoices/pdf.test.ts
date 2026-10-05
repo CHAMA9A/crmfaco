@@ -6,6 +6,7 @@ import type { InvoiceDocument } from "./types";
 
 const testInvoice: InvoiceDocument = {
   id: "42e8c3ae-a10d-472a-994b-166b18b75e26",
+  order_id: null,
   invoice_number: "FAC-2026-000001",
   invoice_date: "2026-09-23",
   purchase_order: "TEST-INVOICE-VALIDATION-2026-09-23",
@@ -16,9 +17,11 @@ const testInvoice: InvoiceDocument = {
   status: "issued",
   currency: "MAD",
   authoritative_total: "10500.00",
+  prices_confirmed_at: null,
   items: [
     {
       id: "1",
+      order_item_id: null,
       description: "[TEST] SOMA 10W40 - VALIDATION LINE",
       quantity: "10",
       unit_price: "650.00",
@@ -27,6 +30,7 @@ const testInvoice: InvoiceDocument = {
     },
     {
       id: "2",
+      order_item_id: null,
       description: "[TEST] SOMA 20W50 - VALIDATION LINE",
       quantity: "5",
       unit_price: "800.00",

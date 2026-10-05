@@ -39,7 +39,10 @@ export function normalizeAppPath(pathname: string) {
 
 export function canAccessFacolubPath(role: AppRole, pathname: string) {
   const path = normalizeAppPath(pathname);
-  const isRegistered = FACOLUB_PATHS.has(path) || path.startsWith("/facolub/documents/invoices/");
+  const isRegistered =
+    FACOLUB_PATHS.has(path) ||
+    path.startsWith("/facolub/documents/invoices/") ||
+    path.startsWith("/facolub/documents/orders/");
   if (!isRegistered) return false;
   if (role === "admin") return true;
   if (role === "management") {

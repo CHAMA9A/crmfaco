@@ -2,7 +2,7 @@ import { ArrowLeft, Download, Eye, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { calculateInvoiceTotals, formatMad } from "@/lib/invoices/money";
+import { formatMad } from "@/lib/invoices/money";
 import {
   downloadInvoicePdf,
   previewInvoicePdf,
@@ -29,7 +29,6 @@ export function InvoiceDocument({
 }) {
   const [pdfAction, setPdfAction] = useState<"preview" | "download" | null>(null);
   const [pdfError, setPdfError] = useState("");
-  const totals = calculateInvoiceTotals(invoice.items.map((item) => item.line_total));
 
   const printInvoice = () => {
     window.focus();
@@ -187,18 +186,10 @@ export function InvoiceDocument({
           </tbody>
         </table>
 
-        <dl className="soma-final-totals" aria-label="Totaux de la facture">
-          <div>
-            <dt>TOTAL HT</dt>
-            <dd>{formatMad(totals.totalHt)}</dd>
-          </div>
-          <div>
-            <dt>TVA 20%</dt>
-            <dd>{formatMad(totals.tax)}</dd>
-          </div>
+        <dl className="soma-final-totals" aria-label="Total de la facture">
           <div className="soma-total-ttc">
-            <dt>TOTAL TTC</dt>
-            <dd>{formatMad(totals.totalTtc)}</dd>
+            <dt>TOTAL</dt>
+            <dd>{formatMad(invoice.authoritative_total)}</dd>
           </div>
         </dl>
 

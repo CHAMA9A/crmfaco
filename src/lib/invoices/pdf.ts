@@ -1,6 +1,6 @@
 import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
 
-import { calculateInvoiceTotals, formatMad } from "./money";
+import { formatMad } from "./money";
 import type { InvoiceDocument } from "./types";
 
 type PreviewWindow = Window | null;
@@ -352,7 +352,6 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
   const bold = await pdfDocument.embedFont(StandardFonts.HelveticaBold);
   const logo = await loadLogo(pdfDocument);
   const pages: PDFPage[] = [];
-  const totals = calculateInvoiceTotals(invoice.items.map((item) => item.line_total));
 
   let page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
   pages.push(page);
@@ -430,7 +429,7 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     y -= rowHeight;
   }
 
-  const totalsHeight = 68;
+  const totalsHeight = 34;
   if (y - totalsHeight < 90) {
     page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
     pages.push(page);
@@ -448,23 +447,11 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     borderWidth: 0.8,
     borderColor: rgb(0.3, 0.3, 0.3),
   });
-  const totalRows = [
-    ["TOTAL HT", formatMad(totals.totalHt)],
-    ["TVA 20%", formatMad(totals.tax)],
-    ["TOTAL TTC", formatMad(totals.totalTtc)],
-  ] as const;
+  const totalRows = [["TOTAL", formatMad(invoice.authoritative_total)]] as const;
   totalRows.forEach(([label, value], index) => {
     const baseline = y - 17 - index * 21;
-    const selectedFont = index === 2 ? bold : font;
-    const size = index === 2 ? 9.5 : 8.5;
-    if (index === 2) {
-      page.drawLine({
-        start: { x: totalX + 9, y: y - 43 },
-        end: { x: totalX + totalWidth - 9, y: y - 43 },
-        thickness: 0.7,
-        color: rgb(0.45, 0.45, 0.45),
-      });
-    }
+    const selectedFont = bold;
+    const size = 9.5;
     page.drawText(label, { x: totalX + 13, y: baseline, size, font: selectedFont });
     drawRightText(page, value, totalX + totalWidth - 13, baseline, selectedFont, size);
   });

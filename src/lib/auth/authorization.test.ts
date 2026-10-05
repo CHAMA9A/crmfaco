@@ -66,6 +66,21 @@ describe("FACOLUB authorization matrix", () => {
     expect(canAccessFacolubPath("factory", detail)).toBe(false);
   });
 
+  test("order document routes stay management-only", () => {
+    const routes = [
+      "/facolub/documents/orders/new",
+      "/facolub/documents/orders/123",
+      "/facolub/documents/orders/123/invoice/preview",
+      "/facolub/documents/orders/123/delivery-note",
+      "/facolub/documents/orders/123/transport-note/preview",
+    ];
+    for (const route of routes) {
+      expect(canAccessFacolubPath("admin", route)).toBe(true);
+      expect(canAccessFacolubPath("management", route)).toBe(true);
+      expect(canAccessFacolubPath("factory", route)).toBe(false);
+    }
+  });
+
   test("each role has the correct landing path", () => {
     expect(defaultFacolubPath("admin")).toBe("/facolub");
     expect(defaultFacolubPath("management")).toBe("/facolub");

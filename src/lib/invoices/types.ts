@@ -2,6 +2,7 @@ export type InvoiceStatus = "draft" | "issued" | "cancelled";
 
 export type InvoiceItem = {
   id: string;
+  order_item_id: string | null;
   description: string;
   quantity: string;
   unit_price: string;
@@ -11,6 +12,7 @@ export type InvoiceItem = {
 
 export type InvoiceDocument = {
   id: string;
+  order_id: string | null;
   invoice_number: string | null;
   invoice_date: string;
   purchase_order: string | null;
@@ -21,6 +23,7 @@ export type InvoiceDocument = {
   status: InvoiceStatus;
   currency: string;
   authoritative_total: string;
+  prices_confirmed_at: string | null;
   items: InvoiceItem[];
 };
 

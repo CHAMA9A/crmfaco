@@ -151,13 +151,13 @@ export const getInvoiceDocumentFn = createServerFn({ method: "GET" })
       supabase
         .from("invoices")
         .select(
-          "id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, status, currency",
+          "id, order_id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, status, currency, prices_confirmed_at",
         )
         .eq("id", data.invoiceId)
         .single(),
       supabase
         .from("invoice_items")
-        .select("id, description, quantity, unit_price, line_total, position")
+        .select("id, order_item_id, description, quantity, unit_price, line_total, position")
         .eq("invoice_id", data.invoiceId)
         .order("position", { ascending: true }),
       supabase.rpc("invoice_authoritative_total", { target_invoice_id: data.invoiceId }),

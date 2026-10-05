@@ -13,6 +13,12 @@ const protectedRoutes = [
   "/facolub/dispatch",
   "/facolub/analytics",
   "/facolub/documents",
+  "/facolub/documents/orders/new",
+  "/facolub/documents/orders/00000000-0000-4000-8000-000000000001",
+  "/facolub/documents/orders/00000000-0000-4000-8000-000000000001/edit",
+  "/facolub/documents/orders/00000000-0000-4000-8000-000000000001/invoice",
+  "/facolub/documents/orders/00000000-0000-4000-8000-000000000001/delivery-note",
+  "/facolub/documents/orders/00000000-0000-4000-8000-000000000001/transport-note",
   "/facolub/documents/invoices/00000000-0000-4000-8000-000000000001",
   "/facolub/documents/invoices/00000000-0000-4000-8000-000000000001/preview",
 ];
