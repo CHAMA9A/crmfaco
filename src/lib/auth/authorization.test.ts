@@ -81,6 +81,29 @@ describe("FACOLUB authorization matrix", () => {
     }
   });
 
+  test("stock history follows stock access and stock settings remain Admin-only", () => {
+    expect(canAccessFacolubPath("admin", "/facolub/stock/history")).toBe(true);
+    expect(canAccessFacolubPath("management", "/facolub/stock/history")).toBe(true);
+    expect(canAccessFacolubPath("factory", "/facolub/stock/history")).toBe(true);
+
+    expect(canAccessFacolubPath("admin", "/facolub/settings/stock-items")).toBe(true);
+    expect(canAccessFacolubPath("management", "/facolub/settings/stock-items")).toBe(false);
+    expect(canAccessFacolubPath("factory", "/facolub/settings/stock-items")).toBe(false);
+  });
+
+  test("receiving workflow routes are available to every FACOLUB role", () => {
+    const routes = [
+      "/facolub/receiving/new",
+      "/facolub/receiving/history",
+      "/facolub/receiving/5a8f8b25-7925-4cf3-a31f-62e682280e09",
+    ];
+    for (const route of routes) {
+      expect(canAccessFacolubPath("admin", route)).toBe(true);
+      expect(canAccessFacolubPath("management", route)).toBe(true);
+      expect(canAccessFacolubPath("factory", route)).toBe(true);
+    }
+  });
+
   test("each role has the correct landing path", () => {
     expect(defaultFacolubPath("admin")).toBe("/facolub");
     expect(defaultFacolubPath("management")).toBe("/facolub");

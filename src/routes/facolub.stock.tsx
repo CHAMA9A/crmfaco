@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PlaceholderPage } from "@/components/app/pages";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/facolub/stock")({
   head: () => ({
     meta: [
@@ -11,5 +11,5 @@ export const Route = createFileRoute("/facolub/stock")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <PlaceholderPage module="stock" />,
+  component: () => <Outlet />,
 });

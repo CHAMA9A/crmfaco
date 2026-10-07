@@ -154,6 +154,210 @@ export type TransportNote = {
   updated_at: string;
 };
 
+export type StockItemCategory =
+  | "empty_bottle"
+  | "label"
+  | "prepared_bottle"
+  | "seal"
+  | "carton"
+  | "bulk_lubricant"
+  | "finished_product"
+  | "other";
+
+export type StockUnit = "piece" | "liter" | "kilogram";
+export type StockDirection = "in" | "out";
+export type StockMovementType =
+  | "opening_balance"
+  | "receipt"
+  | "preparation_consumption"
+  | "preparation_output"
+  | "production_consumption"
+  | "production_output"
+  | "dispatch"
+  | "adjustment_in"
+  | "adjustment_out"
+  | "loss"
+  | "damage"
+  | "correction"
+  | "reservation_release_related"
+  | "other";
+export type StockReservationStatus = "active" | "released" | "consumed" | "cancelled";
+export type StockAdjustmentStatus = "draft" | "pending" | "approved" | "rejected" | "posted";
+
+export type StockItem = {
+  id: string;
+  code: string | null;
+  name: string;
+  category: StockItemCategory;
+  unit: StockUnit;
+  product_format_id: string | null;
+  is_active: boolean;
+  minimum_stock: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockLocation = {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockMovement = {
+  id: string;
+  stock_item_id: string;
+  location_id: string;
+  movement_type: StockMovementType;
+  quantity: number;
+  direction: StockDirection;
+  reference_type: string | null;
+  reference_id: string | null;
+  reason: string | null;
+  created_by: string;
+  created_at: string;
+  corrected_movement_id: string | null;
+  metadata: Json;
+};
+
+export type StockReservation = {
+  id: string;
+  stock_item_id: string;
+  location_id: string;
+  quantity: number;
+  status: StockReservationStatus;
+  reference_type: string;
+  reference_id: string;
+  created_by: string;
+  created_at: string;
+  released_at: string | null;
+  consumed_at: string | null;
+};
+
+export type StockBalance = {
+  stock_item_id: string;
+  location_id: string;
+  physical_quantity: number;
+  reserved_quantity: number;
+  available_quantity: number;
+};
+
+export type StockAdjustment = {
+  id: string;
+  stock_item_id: string;
+  location_id: string;
+  expected_quantity: number;
+  counted_quantity: number;
+  difference_quantity: number;
+  reason: string;
+  status: StockAdjustmentStatus;
+  requested_by: string;
+  approved_by: string | null;
+  approved_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockMovementResult = {
+  movement_id: string;
+  physical_quantity: number;
+  reserved_quantity: number;
+  available_quantity: number;
+};
+
+export type StockMovementHistoryRow = {
+  id: string;
+  created_at: string;
+  stock_item_id: string;
+  stock_item_name: string;
+  category: StockItemCategory;
+  location_id: string;
+  location_name: string;
+  movement_type: StockMovementType;
+  direction: StockDirection;
+  quantity: number;
+  created_by: string;
+  created_by_name: string;
+  reason: string | null;
+  reference_type: string | null;
+  reference_id: string | null;
+  corrected_movement_id: string | null;
+};
+
+export type ReceiptStatus = "draft" | "confirmed" | "cancelled";
+
+export type Supplier = {
+  id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Receipt = {
+  id: string;
+  receipt_number: string | null;
+  supplier_id: string | null;
+  supplier_name_snapshot: string | null;
+  reference: string | null;
+  receipt_date: string;
+  location_id: string | null;
+  status: ReceiptStatus;
+  comment: string | null;
+  created_by: string;
+  confirmed_by: string | null;
+  confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReceiptItem = {
+  id: string;
+  receipt_id: string;
+  stock_item_id: string;
+  quantity: number;
+  unit: StockUnit;
+  position: number;
+  created_at: string;
+};
+
+export type ReceiptAttachment = {
+  id: string;
+  receipt_id: string;
+  storage_path: string;
+  file_name: string | null;
+  mime_type: string;
+  file_size: number | null;
+  uploaded_by: string;
+  created_at: string;
+};
+
+export type ReceiptListRow = {
+  id: string;
+  receipt_number: string | null;
+  receipt_date: string;
+  status: ReceiptStatus;
+  supplier_id: string | null;
+  supplier_name: string | null;
+  reference: string | null;
+  location_id: string;
+  location_name: string;
+  created_by: string;
+  created_by_name: string;
+  confirmed_at: string | null;
+  item_count: number;
+  quantity_summary: string;
+  photo_count: number;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -281,8 +485,124 @@ export type Database = {
         Update: { last_value?: number };
         Relationships: [];
       };
+      stock_items: {
+        Row: StockItem;
+        Insert: Omit<StockItem, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StockItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_locations: {
+        Row: StockLocation;
+        Insert: Omit<StockLocation, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StockLocation, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_movements: {
+        Row: StockMovement;
+        Insert: Omit<StockMovement, "id" | "created_at" | "metadata"> & {
+          id?: string;
+          created_at?: string;
+          metadata?: Json;
+        };
+        Update: Partial<Omit<StockMovement, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_reservations: {
+        Row: StockReservation;
+        Insert: Omit<
+          StockReservation,
+          "id" | "status" | "created_at" | "released_at" | "consumed_at"
+        > & {
+          id?: string;
+          status?: StockReservationStatus;
+          created_at?: string;
+          released_at?: string | null;
+          consumed_at?: string | null;
+        };
+        Update: Partial<Omit<StockReservation, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_adjustments: {
+        Row: StockAdjustment;
+        Insert: Omit<
+          StockAdjustment,
+          "id" | "difference_quantity" | "created_at" | "updated_at"
+        > & { id?: string; created_at?: string; updated_at?: string };
+        Update: Partial<Omit<StockAdjustment, "id" | "difference_quantity" | "created_at">>;
+        Relationships: [];
+      };
+      suppliers: {
+        Row: Supplier;
+        Insert: Omit<Supplier, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Supplier, "id" | "created_at">>;
+        Relationships: [];
+      };
+      receipts: {
+        Row: Receipt;
+        Insert: Omit<
+          Receipt,
+          | "id"
+          | "receipt_number"
+          | "status"
+          | "confirmed_by"
+          | "confirmed_at"
+          | "created_at"
+          | "updated_at"
+        > & {
+          id?: string;
+          receipt_number?: string | null;
+          status?: ReceiptStatus;
+          confirmed_by?: string | null;
+          confirmed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Receipt, "id" | "created_at">>;
+        Relationships: [];
+      };
+      receipt_items: {
+        Row: ReceiptItem;
+        Insert: Omit<ReceiptItem, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<ReceiptItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      receipt_attachments: {
+        Row: ReceiptAttachment;
+        Insert: Omit<ReceiptAttachment, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<ReceiptAttachment, "id" | "created_at">>;
+        Relationships: [];
+      };
+      receipt_number_sequences: {
+        Row: { receipt_date: string; last_value: number };
+        Insert: { receipt_date: string; last_value: number };
+        Update: { last_value?: number };
+        Relationships: [];
+      };
     };
-    Views: Record<string, never>;
+    Views: {
+      stock_balances: {
+        Row: StockBalance;
+        Relationships: [];
+      };
+    };
     Functions: {
       current_app_role: { Args: Record<PropertyKey, never>; Returns: AppRole | null };
       has_environment_access: { Args: { environment_code: string }; Returns: boolean };
@@ -357,12 +677,177 @@ export type Database = {
         Args: { target_document_type: string; target_document_id: string };
         Returns: undefined;
       };
+      record_stock_movement: {
+        Args: {
+          target_stock_item_id: string;
+          target_location_id: string | null;
+          target_movement_type: StockMovementType;
+          target_quantity: number;
+          target_direction: StockDirection;
+          target_reference_type?: string | null;
+          target_reference_id?: string | null;
+          target_reason?: string | null;
+          target_metadata?: Json;
+          target_allow_negative?: boolean;
+        };
+        Returns: StockMovementResult[];
+      };
+      record_stock_correction: {
+        Args: {
+          target_movement_id: string;
+          target_quantity: number;
+          target_reason: string;
+          target_allow_negative?: boolean;
+        };
+        Returns: StockMovementResult[];
+      };
+      get_stock_balance: {
+        Args: { target_stock_item_id: string; target_location_id?: string | null };
+        Returns: StockBalance[];
+      };
+      get_stock_movement_history: {
+        Args: {
+          target_stock_item_id?: string | null;
+          target_category?: StockItemCategory | null;
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_movement_type?: StockMovementType | null;
+          target_created_by?: string | null;
+          target_limit?: number;
+        };
+        Returns: StockMovementHistoryRow[];
+      };
+      create_stock_reservation: {
+        Args: {
+          target_stock_item_id: string;
+          target_location_id: string | null;
+          target_quantity: number;
+          target_reference_type: string;
+          target_reference_id: string;
+        };
+        Returns: StockReservation;
+      };
+      release_stock_reservation: {
+        Args: { target_reservation_id: string };
+        Returns: StockReservation;
+      };
+      consume_stock_reservation: {
+        Args: { target_reservation_id: string };
+        Returns: StockReservation;
+      };
+      save_stock_item: {
+        Args: {
+          target_id: string | null;
+          target_code: string | null;
+          target_name: string;
+          target_category: StockItemCategory;
+          target_unit: StockUnit;
+          target_product_format_id: string | null;
+          target_minimum_stock: number | null;
+          target_notes: string | null;
+          target_is_active: boolean;
+        };
+        Returns: StockItem;
+      };
+      save_supplier: {
+        Args: {
+          target_id: string | null;
+          target_name: string;
+          target_phone?: string | null;
+          target_email?: string | null;
+          target_address?: string | null;
+          target_is_active?: boolean;
+        };
+        Returns: Supplier;
+      };
+      create_receipt_draft: {
+        Args: {
+          target_receipt_date?: string;
+          target_location_id?: string | null;
+          target_supplier_id?: string | null;
+          target_supplier_name?: string | null;
+          target_reference?: string | null;
+          target_comment?: string | null;
+        };
+        Returns: Receipt;
+      };
+      update_receipt_draft: {
+        Args: {
+          target_receipt_id: string;
+          target_receipt_date: string;
+          target_location_id: string | null;
+          target_supplier_id: string | null;
+          target_supplier_name: string | null;
+          target_reference: string | null;
+          target_comment: string | null;
+        };
+        Returns: Receipt;
+      };
+      add_receipt_item: {
+        Args: {
+          target_receipt_id: string;
+          target_stock_item_id: string;
+          target_quantity: number;
+          target_position?: number | null;
+        };
+        Returns: ReceiptItem;
+      };
+      remove_receipt_item: {
+        Args: { target_receipt_item_id: string };
+        Returns: undefined;
+      };
+      attach_receipt_photo: {
+        Args: {
+          target_receipt_id: string;
+          target_storage_path: string;
+          target_file_name: string;
+          target_mime_type: string;
+          target_file_size?: number | null;
+        };
+        Returns: ReceiptAttachment;
+      };
+      detach_receipt_photo: {
+        Args: { target_attachment_id: string };
+        Returns: string;
+      };
+      cancel_receipt: {
+        Args: { target_receipt_id: string };
+        Returns: Receipt;
+      };
+      confirm_receipt: {
+        Args: { target_receipt_id: string };
+        Returns: Json;
+      };
+      get_receipt: {
+        Args: { target_receipt_id: string };
+        Returns: Json;
+      };
+      list_receipts: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_supplier_id?: string | null;
+          target_stock_item_id?: string | null;
+          target_created_by?: string | null;
+          target_status?: ReceiptStatus | null;
+          target_search?: string | null;
+          target_limit?: number;
+        };
+        Returns: ReceiptListRow[];
+      };
     };
     Enums: {
       app_role: AppRole;
       invoice_status: InvoiceStatus;
       order_status: OrderStatus;
       document_status: DocumentStatus;
+      stock_item_category: StockItemCategory;
+      stock_unit: StockUnit;
+      stock_direction: StockDirection;
+      stock_movement_type: StockMovementType;
+      stock_reservation_status: StockReservationStatus;
+      stock_adjustment_status: StockAdjustmentStatus;
+      receipt_status: ReceiptStatus;
     };
     CompositeTypes: Record<string, never>;
   };

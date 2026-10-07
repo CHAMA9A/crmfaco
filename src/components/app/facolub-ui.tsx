@@ -13,10 +13,12 @@ import {
   ShieldX,
   WifiOff,
 } from "lucide-react";
+import { LanguageToggle } from "@/components/app/language-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthenticatedUser } from "@/lib/auth/context";
 import { signOutFn } from "@/lib/auth/functions";
+import { useLanguage } from "@/lib/i18n/use-language";
 import { cn } from "@/lib/utils";
 import {
   appLabels,
@@ -42,6 +44,7 @@ export function StatusBadge({
     | "Active"
     | "Inactive";
 }) {
+  const { t } = useLanguage();
   const tone =
     status === "Done" || status === "Available" || status === "Active"
       ? "bg-success-soft text-success"
@@ -58,7 +61,7 @@ export function StatusBadge({
       )}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-      {status}
+      {t(status)}
     </span>
   );
 }
@@ -80,6 +83,7 @@ export function PageHeader({
   description?: string;
   eyebrow?: string;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="mb-6">
       <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-muted-foreground">
@@ -89,14 +93,14 @@ export function PageHeader({
         {eyebrow && (
           <>
             <ChevronRight className="size-3" />
-            <span>{eyebrow}</span>
+            <span>{t(eyebrow)}</span>
           </>
         )}
       </div>
-      <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{title}</h1>
+      <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{t(title)}</h1>
       {description && (
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-          {description}
+          {t(description)}
         </p>
       )}
     </div>
@@ -112,15 +116,18 @@ export function EmptyState({
   description: string;
   icon: typeof Factory;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="border border-dashed border-border bg-card px-5 py-14 text-center">
       <div className="mx-auto grid size-12 place-items-center rounded-md bg-secondary text-primary">
         <Icon className="size-6" />
       </div>
-      <h2 className="mt-5 text-lg font-bold">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
+      <h2 className="mt-5 text-lg font-bold">{t(title)}</h2>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+        {t(description)}
+      </p>
       <span className="mt-5 inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-bold uppercase text-secondary-foreground">
-        Progressive rollout
+        {t("Progressive rollout")}
       </span>
     </div>
   );
@@ -155,12 +162,13 @@ export function AppState({ state }: { state: "loading" | "no-data" | "error" | "
 
 function NavGroups({ groups, close }: { groups: NavGroup[]; close?: () => void }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useLanguage();
   return (
     <nav className="space-y-5">
       {groups.map((group) => (
         <div key={group.label}>
           <p className="mb-1.5 px-3 text-[11px] font-bold uppercase text-sidebar-muted">
-            {group.label}
+            {t(group.label)}
           </p>
           <div className="space-y-1">
             {group.items.map((item) => {
@@ -178,7 +186,7 @@ function NavGroups({ groups, close }: { groups: NavGroup[]; close?: () => void }
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               );
             })}
@@ -209,6 +217,7 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
 
 export function UserControl({ user }: { user: AuthenticatedUserContext }) {
   const signOut = useServerFn(signOutFn);
+  const { t } = useLanguage();
   const [pending, setPending] = useState(false);
 
   const handleSignOut = async () => {
@@ -234,7 +243,7 @@ export function UserControl({ user }: { user: AuthenticatedUserContext }) {
           <span className="block truncate">{user.profile.display_name}</span>
           <span className="mt-1 block text-xs font-normal text-muted-foreground">
             {user.profile.role} ·{" "}
-            {user.environments.map((item) => item.code).join(", ") || "No environment"}
+            {user.environments.map((item) => item.code).join(", ") || t("No environment")}
           </span>
         </div>
         <div className="-mx-1 my-1 h-px bg-muted" />
@@ -245,7 +254,7 @@ export function UserControl({ user }: { user: AuthenticatedUserContext }) {
           className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:bg-accent disabled:opacity-50"
         >
           <LogOut className="size-4" />
-          {pending ? "Signing out…" : "Sign out"}
+          {pending ? t("Signing out…") : t("Sign out")}
         </button>
       </div>
     </details>
@@ -254,6 +263,7 @@ export function UserControl({ user }: { user: AuthenticatedUserContext }) {
 
 function AppHeader({ role }: { role: AppRole }) {
   const user = useAuthenticatedUser();
+  const { t } = useLanguage();
   return (
     <header className="facolub-shell-chrome sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
       <div className="grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 lg:px-6">
@@ -266,15 +276,16 @@ function AppHeader({ role }: { role: AppRole }) {
         <div className="hidden lg:block">
           <p className="text-xs font-semibold text-muted-foreground">
             {role === "factory"
-              ? "Factory workspace"
-              : `${role === "admin" ? "Admin" : "Management"} workspace`}
+              ? t("Factory workspace")
+              : t(role === "admin" ? "Admin workspace" : "Management workspace")}
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <LanguageToggle />
           <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
             <Link to="/environments">
               <Building2 />
-              Environments
+              {t("Environments")}
             </Link>
           </Button>
           <UserControl user={user} />
@@ -285,10 +296,11 @@ function AppHeader({ role }: { role: AppRole }) {
 }
 
 function MobileMenu({ role }: { role: AppRole }) {
+  const { t } = useLanguage();
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Open menu">
+        <Button variant="ghost" size="icon" aria-label={t("Open menu")}>
           <Menu />
         </Button>
       </SheetTrigger>
@@ -302,7 +314,7 @@ function MobileMenu({ role }: { role: AppRole }) {
           <NavGroups
             groups={
               role === "factory"
-                ? [{ label: "Factory tools", items: factoryNav }]
+                ? [{ label: t("Factory tools"), items: factoryNav }]
                 : navigationForRole(role)
             }
           />
@@ -310,7 +322,7 @@ function MobileMenu({ role }: { role: AppRole }) {
             <Button asChild variant="ghost" className="w-full justify-start">
               <Link to="/environments">
                 <Building2 />
-                Change environment
+                {t("Change environment")}
               </Link>
             </Button>
           </div>
@@ -322,6 +334,7 @@ function MobileMenu({ role }: { role: AppRole }) {
 
 function FactoryBottomNavigation() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useLanguage();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden">
       {factoryNav.map((item) => (
@@ -334,7 +347,7 @@ function FactoryBottomNavigation() {
           )}
         >
           <item.icon className="size-5" />
-          {item.label}
+          {t(item.label)}
         </Link>
       ))}
     </nav>
@@ -343,9 +356,10 @@ function FactoryBottomNavigation() {
 
 function FactoryDesktopNavigation() {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const { t } = useLanguage();
   return (
     <nav
-      aria-label="Factory workspace"
+      aria-label={t("Factory workspace navigation")}
       className="hidden border-b border-border bg-background px-6 lg:block"
     >
       <div className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto py-2">
@@ -361,7 +375,7 @@ function FactoryDesktopNavigation() {
             )}
           >
             <item.icon className="size-4" />
-            {item.label}
+            {t(item.label)}
           </Link>
         ))}
       </div>
@@ -371,6 +385,7 @@ function FactoryDesktopNavigation() {
 
 export function FacolubShell({ children }: { children: ReactNode }) {
   const { profile } = useAuthenticatedUser();
+  const { t } = useLanguage();
   const role = profile.role;
   return (
     <div className="min-h-screen bg-background">
@@ -390,7 +405,7 @@ export function FacolubShell({ children }: { children: ReactNode }) {
             >
               <Link to="/environments">
                 <Building2 />
-                Change environment
+                {t("Change environment")}
               </Link>
             </Button>
           </div>

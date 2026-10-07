@@ -41,6 +41,9 @@ export function canAccessFacolubPath(role: AppRole, pathname: string) {
   const path = normalizeAppPath(pathname);
   const isRegistered =
     FACOLUB_PATHS.has(path) ||
+    path.startsWith("/facolub/stock/") ||
+    path.startsWith("/facolub/receiving/") ||
+    path.startsWith("/facolub/settings/") ||
     path.startsWith("/facolub/documents/invoices/") ||
     path.startsWith("/facolub/documents/orders/");
   if (!isRegistered) return false;
