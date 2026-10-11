@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Boxes, Truck } from "lucide-react";
+import { ArrowRight, Beaker, Boxes, Factory, Truck } from "lucide-react";
 
 import { PageHeader } from "@/components/app/facolub-ui";
 import { useLanguage } from "@/lib/i18n/use-language";
@@ -14,6 +14,40 @@ function SettingsIndexRoute() {
     <>
       <PageHeader title="Settings" description="Configure FACOLUB operational reference data." />
       <div className="grid max-w-xl gap-3">
+        <Link
+          to="/facolub/settings/production-planning"
+          className="group flex items-center justify-between gap-4 border bg-card p-5 shadow-sm hover:border-primary"
+        >
+          <span className="flex items-center gap-4">
+            <span className="grid size-11 place-items-center rounded-md bg-secondary text-primary">
+              <Factory className="size-5" />
+            </span>
+            <span>
+              <span className="block font-bold">Production planning</span>
+              <span className="mt-1 block text-sm text-muted-foreground">
+                Products, carton capacities, components, and recipes
+              </span>
+            </span>
+          </span>
+          <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+        </Link>
+        <Link
+          to="/facolub/settings/prepared-bottles"
+          className="group flex items-center justify-between gap-4 border bg-card p-5 shadow-sm hover:border-primary"
+        >
+          <span className="flex items-center gap-4">
+            <span className="grid size-11 place-items-center rounded-md bg-secondary text-primary">
+              <Beaker className="size-5" />
+            </span>
+            <span>
+              <span className="block font-bold">{t("Prepared bottle recipes")}</span>
+              <span className="mt-1 block text-sm text-muted-foreground">
+                {t("Product, format, empty bottle, and label requirements")}
+              </span>
+            </span>
+          </span>
+          <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+        </Link>
         <Link
           to="/facolub/settings/stock-items"
           className="group flex items-center justify-between gap-4 border bg-card p-5 shadow-sm hover:border-primary"

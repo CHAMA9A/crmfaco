@@ -34,10 +34,12 @@ import {
   UserControl,
 } from "@/components/app/facolub-ui";
 import { LanguageToggle } from "@/components/app/language-toggle";
+import { FactoryMissionList } from "@/components/production/factory-missions";
 import { appLabels, moduleDetails } from "@/lib/navigation";
 import { signInFn } from "@/lib/auth/functions";
 import { useLanguage } from "@/lib/i18n/use-language";
 import type { AdminUserSummary, AuthenticatedUserContext } from "@/types/auth";
+import type { ProductionMission } from "@/lib/production/types";
 
 type ManagementModule = {
   title: string;
@@ -379,20 +381,19 @@ const factoryActions: FactoryAction[] = [
   { label: "Stock", to: "/facolub/stock", icon: Boxes },
   { label: "Receive", to: "/facolub/receiving", icon: PackagePlus },
   { label: "Load / Send", to: "/facolub/dispatch", icon: Truck },
-  { label: "Planning", to: "/facolub/planning", icon: CalendarDays },
+  { label: "Production", to: "/facolub/production", icon: CalendarDays },
   { label: "History / Problems", to: "/facolub/history", icon: History },
 ];
 
-export function TodayPage() {
+export function TodayPage({
+  productionMissions = [],
+}: {
+  productionMissions?: ProductionMission[];
+}) {
   const { t } = useLanguage();
   return (
     <>
-      <div className="mb-6 flex items-start justify-between gap-3">
-        <PageHeader title="Today" description="Your assigned factory work for today." />
-        <span className="shrink-0 rounded-full bg-demo px-3 py-1 text-[11px] font-black uppercase text-demo-foreground">
-          {t("Demo data")}
-        </span>
-      </div>
+      <PageHeader title="Today" description="Your assigned factory work for today." />
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {factoryActions.map((action) => (
           <Link
@@ -408,71 +409,13 @@ export function TodayPage() {
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-lg font-bold">{t("Today’s missions")}</h2>
-          <span className="text-xs font-semibold text-muted-foreground">{t("4 tasks")}</span>
+          <span className="text-xs font-semibold text-muted-foreground">
+            {productionMissions.length} {t("tasks")}
+          </span>
         </div>
-        <div className="space-y-3">
-          <Mission
-            category="Production"
-            icon={Factory}
-            title="10W40 — 5L"
-            detail="40 cartons"
-            status="To Do"
-          />
-          <Mission
-            category="Production"
-            icon={Factory}
-            title="20W50 — 1L"
-            detail="60 cartons"
-            status="In Progress"
-          />
-          <Mission
-            category="Receiving"
-            icon={PackagePlus}
-            title="Empty bottles — 5L"
-            detail="2,000 units expected"
-            status="To Do"
-          />
-          <Mission
-            category="Loading"
-            icon={Truck}
-            title="Client ABC — 10W40 — 5L"
-            detail="30 cartons"
-            status="To Do"
-          />
-        </div>
+        <FactoryMissionList missions={productionMissions} />
       </section>
     </>
-  );
-}
-
-function Mission({
-  category,
-  icon: Icon,
-  title,
-  detail,
-  status,
-}: {
-  category: string;
-  icon: typeof Factory;
-  title: string;
-  detail: string;
-  status: "To Do" | "In Progress";
-}) {
-  const { t } = useLanguage();
-  return (
-    <article className="grid grid-cols-[auto_minmax(0,1fr)] gap-4 border border-border bg-card p-4 shadow-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
-      <div className="grid size-11 place-items-center rounded-md bg-secondary text-primary">
-        <Icon className="size-5" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[11px] font-bold uppercase text-muted-foreground">{t(category)}</p>
-        <h3 className="truncate font-bold">{title}</h3>
-        <p className="mt-1 text-sm text-muted-foreground">{detail}</p>
-      </div>
-      <div className="col-start-2 sm:col-start-3 sm:row-start-1">
-        <StatusBadge status={status} />
-      </div>
-    </article>
   );
 }
 

@@ -6,6 +6,7 @@ import {
   FileText,
   History,
   PackagePlus,
+  PackageCheck,
   Settings,
   ShoppingCart,
   Truck,
@@ -37,6 +38,7 @@ const managementNav: NavGroup[] = [
       { label: "Planning", to: "/facolub/planning", icon: CalendarDays },
       { label: "Production", to: "/facolub/production", icon: Factory },
       { label: "Receiving", to: "/facolub/receiving", icon: PackagePlus },
+      { label: "Prepare bottles", to: "/facolub/preparation", icon: PackageCheck },
       { label: "Dispatch", to: "/facolub/dispatch", icon: Truck },
     ],
   },
@@ -83,7 +85,7 @@ export function navigationForRole(role: AppRole): NavGroup[] {
 export const factoryNav: NavItem[] = [
   { label: "Today", to: "/facolub/today", icon: ClipboardList },
   { label: "Receive", to: "/facolub/receiving", icon: PackagePlus },
-  { label: "Planning", to: "/facolub/planning", icon: CalendarDays },
+  { label: "Prepare", to: "/facolub/preparation", icon: PackageCheck },
   { label: "Dispatch", to: "/facolub/dispatch", icon: Truck },
   { label: "More", to: "/facolub/history", icon: History },
 ];
@@ -92,7 +94,7 @@ export const factoryDesktopNav: NavItem[] = [
   { label: "Today", to: "/facolub/today", icon: ClipboardList },
   { label: "Stock", to: "/facolub/stock", icon: Boxes },
   { label: "Receive", to: "/facolub/receiving", icon: PackagePlus },
-  { label: "Planning", to: "/facolub/planning", icon: CalendarDays },
+  { label: "Prepare bottles", to: "/facolub/preparation", icon: PackageCheck },
   { label: "Production", to: "/facolub/production", icon: Factory },
   { label: "Load / Send", to: "/facolub/dispatch", icon: Truck },
   { label: "History / Problems", to: "/facolub/history", icon: History },
@@ -112,6 +114,11 @@ export const moduleDetails: Record<
     title: "Receiving",
     description: "Incoming materials and receipt checks will be managed here.",
     icon: PackagePlus,
+  },
+  preparation: {
+    title: "Prepared Bottles",
+    description: "Empty bottles and labels are transformed into filling-ready packaging here.",
+    icon: PackageCheck,
   },
   planning: {
     title: "Planning",

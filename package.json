@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "bun run test:unit && bun run build && bun run test:smoke",
-    "test:unit": "bun test src/lib/auth/authorization.test.ts src/lib/i18n/translations.test.ts src/lib/stock/stock.test.ts src/lib/receiving/receiving.test.ts src/lib/invoices/money.test.ts src/lib/invoices/pdf.test.ts src/lib/orders/pdf.test.ts",
+    "test:unit": "bun test src/lib/auth/authorization.test.ts src/lib/i18n/translations.test.ts src/lib/stock/stock.test.ts src/lib/receiving/receiving.test.ts src/lib/preparation/preparation.test.ts src/lib/invoices/money.test.ts src/lib/invoices/pdf.test.ts src/lib/orders/pdf.test.ts",
     "test:smoke": "node scripts/smoke.mjs"
   },
   "overrides": {

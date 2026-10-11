@@ -4,7 +4,7 @@ const FACTORY_PATHS = new Set([
   "/facolub/today",
   "/facolub/stock",
   "/facolub/receiving",
-  "/facolub/planning",
+  "/facolub/preparation",
   "/facolub/production",
   "/facolub/dispatch",
   "/facolub/history",
@@ -17,6 +17,7 @@ const FACOLUB_PATHS = new Set([
   "/facolub/today",
   "/facolub/stock",
   "/facolub/receiving",
+  "/facolub/preparation",
   "/facolub/planning",
   "/facolub/production",
   "/facolub/dispatch",
@@ -43,6 +44,9 @@ export function canAccessFacolubPath(role: AppRole, pathname: string) {
     FACOLUB_PATHS.has(path) ||
     path.startsWith("/facolub/stock/") ||
     path.startsWith("/facolub/receiving/") ||
+    path.startsWith("/facolub/preparation/") ||
+    path.startsWith("/facolub/planning/") ||
+    path.startsWith("/facolub/production/") ||
     path.startsWith("/facolub/settings/") ||
     path.startsWith("/facolub/documents/invoices/") ||
     path.startsWith("/facolub/documents/orders/");

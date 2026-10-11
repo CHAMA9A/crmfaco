@@ -24,6 +24,7 @@ import { Route as FacolubDispatchRouteImport } from './routes/facolub.dispatch'
 import { Route as FacolubDocumentsRouteImport } from './routes/facolub.documents'
 import { Route as FacolubHistoryRouteImport } from './routes/facolub.history'
 import { Route as FacolubPlanningRouteImport } from './routes/facolub.planning'
+import { Route as FacolubPreparationRouteImport } from './routes/facolub.preparation'
 import { Route as FacolubPricesRouteImport } from './routes/facolub.prices'
 import { Route as FacolubProblemsRouteImport } from './routes/facolub.problems'
 import { Route as FacolubProductionRouteImport } from './routes/facolub.production'
@@ -34,11 +35,22 @@ import { Route as FacolubStockRouteImport } from './routes/facolub.stock'
 import { Route as FacolubTodayRouteImport } from './routes/facolub.today'
 import { Route as FacolubUsersRouteImport } from './routes/facolub.users'
 import { Route as FacolubDocumentsIndexRouteImport } from './routes/facolub.documents.index'
+import { Route as FacolubPlanningIndexRouteImport } from './routes/facolub.planning.index'
+import { Route as FacolubPlanningPlanIdRouteImport } from './routes/facolub.planning.$planId'
+import { Route as FacolubPlanningNewRouteImport } from './routes/facolub.planning.new'
+import { Route as FacolubPreparationIndexRouteImport } from './routes/facolub.preparation.index'
+import { Route as FacolubPreparationPreparationIdRouteImport } from './routes/facolub.preparation.$preparationId'
+import { Route as FacolubPreparationHistoryRouteImport } from './routes/facolub.preparation.history'
+import { Route as FacolubPreparationNewRouteImport } from './routes/facolub.preparation.new'
+import { Route as FacolubProductionIndexRouteImport } from './routes/facolub.production.index'
+import { Route as FacolubProductionExecutionIdRouteImport } from './routes/facolub.production.$executionId'
 import { Route as FacolubReceivingIndexRouteImport } from './routes/facolub.receiving.index'
 import { Route as FacolubReceivingReceiptIdRouteImport } from './routes/facolub.receiving.$receiptId'
 import { Route as FacolubReceivingHistoryRouteImport } from './routes/facolub.receiving.history'
 import { Route as FacolubReceivingNewRouteImport } from './routes/facolub.receiving.new'
 import { Route as FacolubSettingsIndexRouteImport } from './routes/facolub.settings.index'
+import { Route as FacolubSettingsPreparedBottlesRouteImport } from './routes/facolub.settings.prepared-bottles'
+import { Route as FacolubSettingsProductionPlanningRouteImport } from './routes/facolub.settings.production-planning'
 import { Route as FacolubSettingsStockItemsRouteImport } from './routes/facolub.settings.stock-items'
 import { Route as FacolubSettingsSuppliersRouteImport } from './routes/facolub.settings.suppliers'
 import { Route as FacolubStockIndexRouteImport } from './routes/facolub.stock.index'
@@ -135,6 +147,11 @@ const FacolubPlanningRoute = FacolubPlanningRouteImport.update({
   path: '/planning',
   getParentRoute: () => FacolubRoute,
 } as any)
+const FacolubPreparationRoute = FacolubPreparationRouteImport.update({
+  id: '/preparation',
+  path: '/preparation',
+  getParentRoute: () => FacolubRoute,
+} as any)
 const FacolubPricesRoute = FacolubPricesRouteImport.update({
   id: '/prices',
   path: '/prices',
@@ -185,6 +202,54 @@ const FacolubDocumentsIndexRoute = FacolubDocumentsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FacolubDocumentsRoute,
 } as any)
+const FacolubPlanningIndexRoute = FacolubPlanningIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FacolubPlanningRoute,
+} as any)
+const FacolubPlanningPlanIdRoute = FacolubPlanningPlanIdRouteImport.update({
+  id: '/$planId',
+  path: '/$planId',
+  getParentRoute: () => FacolubPlanningRoute,
+} as any)
+const FacolubPlanningNewRoute = FacolubPlanningNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FacolubPlanningRoute,
+} as any)
+const FacolubPreparationIndexRoute = FacolubPreparationIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FacolubPreparationRoute,
+} as any)
+const FacolubPreparationPreparationIdRoute =
+  FacolubPreparationPreparationIdRouteImport.update({
+    id: '/$preparationId',
+    path: '/$preparationId',
+    getParentRoute: () => FacolubPreparationRoute,
+  } as any)
+const FacolubPreparationHistoryRoute =
+  FacolubPreparationHistoryRouteImport.update({
+    id: '/history',
+    path: '/history',
+    getParentRoute: () => FacolubPreparationRoute,
+  } as any)
+const FacolubPreparationNewRoute = FacolubPreparationNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FacolubPreparationRoute,
+} as any)
+const FacolubProductionIndexRoute = FacolubProductionIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FacolubProductionRoute,
+} as any)
+const FacolubProductionExecutionIdRoute =
+  FacolubProductionExecutionIdRouteImport.update({
+    id: '/$executionId',
+    path: '/$executionId',
+    getParentRoute: () => FacolubProductionRoute,
+  } as any)
 const FacolubReceivingIndexRoute = FacolubReceivingIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -211,6 +276,18 @@ const FacolubSettingsIndexRoute = FacolubSettingsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FacolubSettingsRoute,
 } as any)
+const FacolubSettingsPreparedBottlesRoute =
+  FacolubSettingsPreparedBottlesRouteImport.update({
+    id: '/prepared-bottles',
+    path: '/prepared-bottles',
+    getParentRoute: () => FacolubSettingsRoute,
+  } as any)
+const FacolubSettingsProductionPlanningRoute =
+  FacolubSettingsProductionPlanningRouteImport.update({
+    id: '/production-planning',
+    path: '/production-planning',
+    getParentRoute: () => FacolubSettingsRoute,
+  } as any)
 const FacolubSettingsStockItemsRoute =
   FacolubSettingsStockItemsRouteImport.update({
     id: '/stock-items',
@@ -344,10 +421,11 @@ export interface FileRoutesByFullPath {
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/documents': typeof FacolubDocumentsRouteWithChildren
   '/facolub/history': typeof FacolubHistoryRoute
-  '/facolub/planning': typeof FacolubPlanningRoute
+  '/facolub/planning': typeof FacolubPlanningRouteWithChildren
+  '/facolub/preparation': typeof FacolubPreparationRouteWithChildren
   '/facolub/prices': typeof FacolubPricesRoute
   '/facolub/problems': typeof FacolubProblemsRoute
-  '/facolub/production': typeof FacolubProductionRoute
+  '/facolub/production': typeof FacolubProductionRouteWithChildren
   '/facolub/purchases': typeof FacolubPurchasesRoute
   '/facolub/receiving': typeof FacolubReceivingRouteWithChildren
   '/facolub/settings': typeof FacolubSettingsRouteWithChildren
@@ -355,13 +433,24 @@ export interface FileRoutesByFullPath {
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub/': typeof FacolubIndexRoute
+  '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
+  '/facolub/planning/new': typeof FacolubPlanningNewRoute
+  '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
+  '/facolub/preparation/history': typeof FacolubPreparationHistoryRoute
+  '/facolub/preparation/new': typeof FacolubPreparationNewRoute
+  '/facolub/production/$executionId': typeof FacolubProductionExecutionIdRoute
   '/facolub/receiving/$receiptId': typeof FacolubReceivingReceiptIdRoute
   '/facolub/receiving/history': typeof FacolubReceivingHistoryRoute
   '/facolub/receiving/new': typeof FacolubReceivingNewRoute
+  '/facolub/settings/prepared-bottles': typeof FacolubSettingsPreparedBottlesRoute
+  '/facolub/settings/production-planning': typeof FacolubSettingsProductionPlanningRoute
   '/facolub/settings/stock-items': typeof FacolubSettingsStockItemsRoute
   '/facolub/settings/suppliers': typeof FacolubSettingsSuppliersRoute
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
   '/facolub/documents/': typeof FacolubDocumentsIndexRoute
+  '/facolub/planning/': typeof FacolubPlanningIndexRoute
+  '/facolub/preparation/': typeof FacolubPreparationIndexRoute
+  '/facolub/production/': typeof FacolubProductionIndexRoute
   '/facolub/receiving/': typeof FacolubReceivingIndexRoute
   '/facolub/settings/': typeof FacolubSettingsIndexRoute
   '/facolub/stock/': typeof FacolubStockIndexRoute
@@ -394,21 +483,30 @@ export interface FileRoutesByTo {
   '/facolub/customers': typeof FacolubCustomersRoute
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/history': typeof FacolubHistoryRoute
-  '/facolub/planning': typeof FacolubPlanningRoute
   '/facolub/prices': typeof FacolubPricesRoute
   '/facolub/problems': typeof FacolubProblemsRoute
-  '/facolub/production': typeof FacolubProductionRoute
   '/facolub/purchases': typeof FacolubPurchasesRoute
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub': typeof FacolubIndexRoute
+  '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
+  '/facolub/planning/new': typeof FacolubPlanningNewRoute
+  '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
+  '/facolub/preparation/history': typeof FacolubPreparationHistoryRoute
+  '/facolub/preparation/new': typeof FacolubPreparationNewRoute
+  '/facolub/production/$executionId': typeof FacolubProductionExecutionIdRoute
   '/facolub/receiving/$receiptId': typeof FacolubReceivingReceiptIdRoute
   '/facolub/receiving/history': typeof FacolubReceivingHistoryRoute
   '/facolub/receiving/new': typeof FacolubReceivingNewRoute
+  '/facolub/settings/prepared-bottles': typeof FacolubSettingsPreparedBottlesRoute
+  '/facolub/settings/production-planning': typeof FacolubSettingsProductionPlanningRoute
   '/facolub/settings/stock-items': typeof FacolubSettingsStockItemsRoute
   '/facolub/settings/suppliers': typeof FacolubSettingsSuppliersRoute
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
   '/facolub/documents': typeof FacolubDocumentsIndexRoute
+  '/facolub/planning': typeof FacolubPlanningIndexRoute
+  '/facolub/preparation': typeof FacolubPreparationIndexRoute
+  '/facolub/production': typeof FacolubProductionIndexRoute
   '/facolub/receiving': typeof FacolubReceivingIndexRoute
   '/facolub/settings': typeof FacolubSettingsIndexRoute
   '/facolub/stock': typeof FacolubStockIndexRoute
@@ -439,10 +537,11 @@ export interface FileRoutesById {
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/documents': typeof FacolubDocumentsRouteWithChildren
   '/facolub/history': typeof FacolubHistoryRoute
-  '/facolub/planning': typeof FacolubPlanningRoute
+  '/facolub/planning': typeof FacolubPlanningRouteWithChildren
+  '/facolub/preparation': typeof FacolubPreparationRouteWithChildren
   '/facolub/prices': typeof FacolubPricesRoute
   '/facolub/problems': typeof FacolubProblemsRoute
-  '/facolub/production': typeof FacolubProductionRoute
+  '/facolub/production': typeof FacolubProductionRouteWithChildren
   '/facolub/purchases': typeof FacolubPurchasesRoute
   '/facolub/receiving': typeof FacolubReceivingRouteWithChildren
   '/facolub/settings': typeof FacolubSettingsRouteWithChildren
@@ -450,13 +549,24 @@ export interface FileRoutesById {
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub/': typeof FacolubIndexRoute
+  '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
+  '/facolub/planning/new': typeof FacolubPlanningNewRoute
+  '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
+  '/facolub/preparation/history': typeof FacolubPreparationHistoryRoute
+  '/facolub/preparation/new': typeof FacolubPreparationNewRoute
+  '/facolub/production/$executionId': typeof FacolubProductionExecutionIdRoute
   '/facolub/receiving/$receiptId': typeof FacolubReceivingReceiptIdRoute
   '/facolub/receiving/history': typeof FacolubReceivingHistoryRoute
   '/facolub/receiving/new': typeof FacolubReceivingNewRoute
+  '/facolub/settings/prepared-bottles': typeof FacolubSettingsPreparedBottlesRoute
+  '/facolub/settings/production-planning': typeof FacolubSettingsProductionPlanningRoute
   '/facolub/settings/stock-items': typeof FacolubSettingsStockItemsRoute
   '/facolub/settings/suppliers': typeof FacolubSettingsSuppliersRoute
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
   '/facolub/documents/': typeof FacolubDocumentsIndexRoute
+  '/facolub/planning/': typeof FacolubPlanningIndexRoute
+  '/facolub/preparation/': typeof FacolubPreparationIndexRoute
+  '/facolub/production/': typeof FacolubProductionIndexRoute
   '/facolub/receiving/': typeof FacolubReceivingIndexRoute
   '/facolub/settings/': typeof FacolubSettingsIndexRoute
   '/facolub/stock/': typeof FacolubStockIndexRoute
@@ -494,6 +604,7 @@ export interface FileRouteTypes {
     | '/facolub/documents'
     | '/facolub/history'
     | '/facolub/planning'
+    | '/facolub/preparation'
     | '/facolub/prices'
     | '/facolub/problems'
     | '/facolub/production'
@@ -504,13 +615,24 @@ export interface FileRouteTypes {
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub/'
+    | '/facolub/planning/$planId'
+    | '/facolub/planning/new'
+    | '/facolub/preparation/$preparationId'
+    | '/facolub/preparation/history'
+    | '/facolub/preparation/new'
+    | '/facolub/production/$executionId'
     | '/facolub/receiving/$receiptId'
     | '/facolub/receiving/history'
     | '/facolub/receiving/new'
+    | '/facolub/settings/prepared-bottles'
+    | '/facolub/settings/production-planning'
     | '/facolub/settings/stock-items'
     | '/facolub/settings/suppliers'
     | '/facolub/stock/history'
     | '/facolub/documents/'
+    | '/facolub/planning/'
+    | '/facolub/preparation/'
+    | '/facolub/production/'
     | '/facolub/receiving/'
     | '/facolub/settings/'
     | '/facolub/stock/'
@@ -543,21 +665,30 @@ export interface FileRouteTypes {
     | '/facolub/customers'
     | '/facolub/dispatch'
     | '/facolub/history'
-    | '/facolub/planning'
     | '/facolub/prices'
     | '/facolub/problems'
-    | '/facolub/production'
     | '/facolub/purchases'
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub'
+    | '/facolub/planning/$planId'
+    | '/facolub/planning/new'
+    | '/facolub/preparation/$preparationId'
+    | '/facolub/preparation/history'
+    | '/facolub/preparation/new'
+    | '/facolub/production/$executionId'
     | '/facolub/receiving/$receiptId'
     | '/facolub/receiving/history'
     | '/facolub/receiving/new'
+    | '/facolub/settings/prepared-bottles'
+    | '/facolub/settings/production-planning'
     | '/facolub/settings/stock-items'
     | '/facolub/settings/suppliers'
     | '/facolub/stock/history'
     | '/facolub/documents'
+    | '/facolub/planning'
+    | '/facolub/preparation'
+    | '/facolub/production'
     | '/facolub/receiving'
     | '/facolub/settings'
     | '/facolub/stock'
@@ -588,6 +719,7 @@ export interface FileRouteTypes {
     | '/facolub/documents'
     | '/facolub/history'
     | '/facolub/planning'
+    | '/facolub/preparation'
     | '/facolub/prices'
     | '/facolub/problems'
     | '/facolub/production'
@@ -598,13 +730,24 @@ export interface FileRouteTypes {
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub/'
+    | '/facolub/planning/$planId'
+    | '/facolub/planning/new'
+    | '/facolub/preparation/$preparationId'
+    | '/facolub/preparation/history'
+    | '/facolub/preparation/new'
+    | '/facolub/production/$executionId'
     | '/facolub/receiving/$receiptId'
     | '/facolub/receiving/history'
     | '/facolub/receiving/new'
+    | '/facolub/settings/prepared-bottles'
+    | '/facolub/settings/production-planning'
     | '/facolub/settings/stock-items'
     | '/facolub/settings/suppliers'
     | '/facolub/stock/history'
     | '/facolub/documents/'
+    | '/facolub/planning/'
+    | '/facolub/preparation/'
+    | '/facolub/production/'
     | '/facolub/receiving/'
     | '/facolub/settings/'
     | '/facolub/stock/'
@@ -743,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacolubPlanningRouteImport
       parentRoute: typeof FacolubRoute
     }
+    '/facolub/preparation': {
+      id: '/facolub/preparation'
+      path: '/preparation'
+      fullPath: '/facolub/preparation'
+      preLoaderRoute: typeof FacolubPreparationRouteImport
+      parentRoute: typeof FacolubRoute
+    }
     '/facolub/prices': {
       id: '/facolub/prices'
       path: '/prices'
@@ -813,6 +963,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacolubDocumentsIndexRouteImport
       parentRoute: typeof FacolubDocumentsRoute
     }
+    '/facolub/planning/': {
+      id: '/facolub/planning/'
+      path: '/'
+      fullPath: '/facolub/planning/'
+      preLoaderRoute: typeof FacolubPlanningIndexRouteImport
+      parentRoute: typeof FacolubPlanningRoute
+    }
+    '/facolub/planning/$planId': {
+      id: '/facolub/planning/$planId'
+      path: '/$planId'
+      fullPath: '/facolub/planning/$planId'
+      preLoaderRoute: typeof FacolubPlanningPlanIdRouteImport
+      parentRoute: typeof FacolubPlanningRoute
+    }
+    '/facolub/planning/new': {
+      id: '/facolub/planning/new'
+      path: '/new'
+      fullPath: '/facolub/planning/new'
+      preLoaderRoute: typeof FacolubPlanningNewRouteImport
+      parentRoute: typeof FacolubPlanningRoute
+    }
+    '/facolub/preparation/': {
+      id: '/facolub/preparation/'
+      path: '/'
+      fullPath: '/facolub/preparation/'
+      preLoaderRoute: typeof FacolubPreparationIndexRouteImport
+      parentRoute: typeof FacolubPreparationRoute
+    }
+    '/facolub/preparation/$preparationId': {
+      id: '/facolub/preparation/$preparationId'
+      path: '/$preparationId'
+      fullPath: '/facolub/preparation/$preparationId'
+      preLoaderRoute: typeof FacolubPreparationPreparationIdRouteImport
+      parentRoute: typeof FacolubPreparationRoute
+    }
+    '/facolub/preparation/history': {
+      id: '/facolub/preparation/history'
+      path: '/history'
+      fullPath: '/facolub/preparation/history'
+      preLoaderRoute: typeof FacolubPreparationHistoryRouteImport
+      parentRoute: typeof FacolubPreparationRoute
+    }
+    '/facolub/preparation/new': {
+      id: '/facolub/preparation/new'
+      path: '/new'
+      fullPath: '/facolub/preparation/new'
+      preLoaderRoute: typeof FacolubPreparationNewRouteImport
+      parentRoute: typeof FacolubPreparationRoute
+    }
+    '/facolub/production/': {
+      id: '/facolub/production/'
+      path: '/'
+      fullPath: '/facolub/production/'
+      preLoaderRoute: typeof FacolubProductionIndexRouteImport
+      parentRoute: typeof FacolubProductionRoute
+    }
+    '/facolub/production/$executionId': {
+      id: '/facolub/production/$executionId'
+      path: '/$executionId'
+      fullPath: '/facolub/production/$executionId'
+      preLoaderRoute: typeof FacolubProductionExecutionIdRouteImport
+      parentRoute: typeof FacolubProductionRoute
+    }
     '/facolub/receiving/': {
       id: '/facolub/receiving/'
       path: '/'
@@ -846,6 +1059,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/facolub/settings/'
       preLoaderRoute: typeof FacolubSettingsIndexRouteImport
+      parentRoute: typeof FacolubSettingsRoute
+    }
+    '/facolub/settings/prepared-bottles': {
+      id: '/facolub/settings/prepared-bottles'
+      path: '/prepared-bottles'
+      fullPath: '/facolub/settings/prepared-bottles'
+      preLoaderRoute: typeof FacolubSettingsPreparedBottlesRouteImport
+      parentRoute: typeof FacolubSettingsRoute
+    }
+    '/facolub/settings/production-planning': {
+      id: '/facolub/settings/production-planning'
+      path: '/production-planning'
+      fullPath: '/facolub/settings/production-planning'
+      preLoaderRoute: typeof FacolubSettingsProductionPlanningRouteImport
       parentRoute: typeof FacolubSettingsRoute
     }
     '/facolub/settings/stock-items': {
@@ -1109,6 +1336,52 @@ const FacolubDocumentsRouteChildren: FacolubDocumentsRouteChildren = {
 const FacolubDocumentsRouteWithChildren =
   FacolubDocumentsRoute._addFileChildren(FacolubDocumentsRouteChildren)
 
+interface FacolubPlanningRouteChildren {
+  FacolubPlanningPlanIdRoute: typeof FacolubPlanningPlanIdRoute
+  FacolubPlanningNewRoute: typeof FacolubPlanningNewRoute
+  FacolubPlanningIndexRoute: typeof FacolubPlanningIndexRoute
+}
+
+const FacolubPlanningRouteChildren: FacolubPlanningRouteChildren = {
+  FacolubPlanningPlanIdRoute: FacolubPlanningPlanIdRoute,
+  FacolubPlanningNewRoute: FacolubPlanningNewRoute,
+  FacolubPlanningIndexRoute: FacolubPlanningIndexRoute,
+}
+
+const FacolubPlanningRouteWithChildren = FacolubPlanningRoute._addFileChildren(
+  FacolubPlanningRouteChildren,
+)
+
+interface FacolubPreparationRouteChildren {
+  FacolubPreparationPreparationIdRoute: typeof FacolubPreparationPreparationIdRoute
+  FacolubPreparationHistoryRoute: typeof FacolubPreparationHistoryRoute
+  FacolubPreparationNewRoute: typeof FacolubPreparationNewRoute
+  FacolubPreparationIndexRoute: typeof FacolubPreparationIndexRoute
+}
+
+const FacolubPreparationRouteChildren: FacolubPreparationRouteChildren = {
+  FacolubPreparationPreparationIdRoute: FacolubPreparationPreparationIdRoute,
+  FacolubPreparationHistoryRoute: FacolubPreparationHistoryRoute,
+  FacolubPreparationNewRoute: FacolubPreparationNewRoute,
+  FacolubPreparationIndexRoute: FacolubPreparationIndexRoute,
+}
+
+const FacolubPreparationRouteWithChildren =
+  FacolubPreparationRoute._addFileChildren(FacolubPreparationRouteChildren)
+
+interface FacolubProductionRouteChildren {
+  FacolubProductionExecutionIdRoute: typeof FacolubProductionExecutionIdRoute
+  FacolubProductionIndexRoute: typeof FacolubProductionIndexRoute
+}
+
+const FacolubProductionRouteChildren: FacolubProductionRouteChildren = {
+  FacolubProductionExecutionIdRoute: FacolubProductionExecutionIdRoute,
+  FacolubProductionIndexRoute: FacolubProductionIndexRoute,
+}
+
+const FacolubProductionRouteWithChildren =
+  FacolubProductionRoute._addFileChildren(FacolubProductionRouteChildren)
+
 interface FacolubReceivingRouteChildren {
   FacolubReceivingReceiptIdRoute: typeof FacolubReceivingReceiptIdRoute
   FacolubReceivingHistoryRoute: typeof FacolubReceivingHistoryRoute
@@ -1127,12 +1400,17 @@ const FacolubReceivingRouteWithChildren =
   FacolubReceivingRoute._addFileChildren(FacolubReceivingRouteChildren)
 
 interface FacolubSettingsRouteChildren {
+  FacolubSettingsPreparedBottlesRoute: typeof FacolubSettingsPreparedBottlesRoute
+  FacolubSettingsProductionPlanningRoute: typeof FacolubSettingsProductionPlanningRoute
   FacolubSettingsStockItemsRoute: typeof FacolubSettingsStockItemsRoute
   FacolubSettingsSuppliersRoute: typeof FacolubSettingsSuppliersRoute
   FacolubSettingsIndexRoute: typeof FacolubSettingsIndexRoute
 }
 
 const FacolubSettingsRouteChildren: FacolubSettingsRouteChildren = {
+  FacolubSettingsPreparedBottlesRoute: FacolubSettingsPreparedBottlesRoute,
+  FacolubSettingsProductionPlanningRoute:
+    FacolubSettingsProductionPlanningRoute,
   FacolubSettingsStockItemsRoute: FacolubSettingsStockItemsRoute,
   FacolubSettingsSuppliersRoute: FacolubSettingsSuppliersRoute,
   FacolubSettingsIndexRoute: FacolubSettingsIndexRoute,
@@ -1163,10 +1441,11 @@ interface FacolubRouteChildren {
   FacolubDispatchRoute: typeof FacolubDispatchRoute
   FacolubDocumentsRoute: typeof FacolubDocumentsRouteWithChildren
   FacolubHistoryRoute: typeof FacolubHistoryRoute
-  FacolubPlanningRoute: typeof FacolubPlanningRoute
+  FacolubPlanningRoute: typeof FacolubPlanningRouteWithChildren
+  FacolubPreparationRoute: typeof FacolubPreparationRouteWithChildren
   FacolubPricesRoute: typeof FacolubPricesRoute
   FacolubProblemsRoute: typeof FacolubProblemsRoute
-  FacolubProductionRoute: typeof FacolubProductionRoute
+  FacolubProductionRoute: typeof FacolubProductionRouteWithChildren
   FacolubPurchasesRoute: typeof FacolubPurchasesRoute
   FacolubReceivingRoute: typeof FacolubReceivingRouteWithChildren
   FacolubSettingsRoute: typeof FacolubSettingsRouteWithChildren
@@ -1183,10 +1462,11 @@ const FacolubRouteChildren: FacolubRouteChildren = {
   FacolubDispatchRoute: FacolubDispatchRoute,
   FacolubDocumentsRoute: FacolubDocumentsRouteWithChildren,
   FacolubHistoryRoute: FacolubHistoryRoute,
-  FacolubPlanningRoute: FacolubPlanningRoute,
+  FacolubPlanningRoute: FacolubPlanningRouteWithChildren,
+  FacolubPreparationRoute: FacolubPreparationRouteWithChildren,
   FacolubPricesRoute: FacolubPricesRoute,
   FacolubProblemsRoute: FacolubProblemsRoute,
-  FacolubProductionRoute: FacolubProductionRoute,
+  FacolubProductionRoute: FacolubProductionRouteWithChildren,
   FacolubPurchasesRoute: FacolubPurchasesRoute,
   FacolubReceivingRoute: FacolubReceivingRouteWithChildren,
   FacolubSettingsRoute: FacolubSettingsRouteWithChildren,

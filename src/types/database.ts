@@ -236,6 +236,7 @@ export type StockReservation = {
   created_at: string;
   released_at: string | null;
   consumed_at: string | null;
+  production_plan_requirement_id: string | null;
 };
 
 export type StockBalance = {
@@ -355,6 +356,245 @@ export type ReceiptListRow = {
   item_count: number;
   quantity_summary: string;
   photo_count: number;
+  created_at: string;
+};
+
+export type PreparationStatus = "draft" | "confirmed" | "cancelled";
+
+export type ProductionPlanStatus = "draft" | "planned" | "validated" | "cancelled";
+export type ProductionReservationStatus = "not_reserved" | "reserved" | "released" | "consumed";
+export type PlanningQuantityMode = "bottles" | "cartons";
+export type ProductionExecutionStatus = "to_do" | "in_progress" | "done" | "blocked" | "cancelled";
+export type ProductionIssueCategory =
+  "missing_stock" | "damaged_material" | "machine_issue" | "wrong_quantity" | "other";
+export type ProductionComponentRole =
+  "prepared_bottle" | "bulk_lubricant" | "seal" | "carton" | "other";
+
+export type PlanningProduct = {
+  id: string;
+  code: string | null;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type PackagingFormat = {
+  id: string;
+  code: string;
+  name: string;
+  volume_liters: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductFormat = {
+  id: string;
+  product_id: string;
+  format_id: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type PackagingRule = {
+  id: string;
+  format_id: string;
+  bottles_per_carton: number;
+  is_active: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductionPlan = {
+  id: string;
+  plan_number: string | null;
+  production_date: string;
+  location_id: string;
+  status: ProductionPlanStatus;
+  priority: number | null;
+  assigned_to: string | null;
+  comment: string | null;
+  created_by: string;
+  validated_by: string | null;
+  validated_at: string | null;
+  reservation_status: ProductionReservationStatus;
+  reserved_by: string | null;
+  reserved_at: string | null;
+  released_by: string | null;
+  released_at: string | null;
+  consumed_by: string | null;
+  consumed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductionPlanItem = {
+  id: string;
+  production_plan_id: string;
+  product_format_id: string;
+  recipe_id: string | null;
+  quantity_mode: PlanningQuantityMode;
+  entered_quantity: number;
+  planned_bottles: number;
+  planned_cartons: number | null;
+  bottles_per_carton: number | null;
+  product_name_snapshot: string;
+  format_name_snapshot: string;
+  output_stock_item_id: string | null;
+  output_item_name_snapshot: string | null;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductionRecipe = {
+  id: string;
+  product_format_id: string;
+  output_stock_item_id: string;
+  version: number;
+  is_active: boolean;
+  supersedes_recipe_id: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductionRecipeComponent = {
+  id: string;
+  recipe_id: string;
+  component_stock_item_id: string;
+  quantity_per_bottle: number;
+  component_role: ProductionComponentRole;
+  position: number;
+  created_at: string;
+};
+export type ProductionPlanRequirement = {
+  id: string;
+  production_plan_item_id: string;
+  recipe_component_id: string | null;
+  component_stock_item_id: string;
+  component_name_snapshot: string;
+  component_role: ProductionComponentRole;
+  unit: StockUnit;
+  quantity_per_bottle: number;
+  quantity_required: number;
+  physical_quantity_snapshot: number;
+  reserved_quantity_snapshot: number;
+  available_quantity_snapshot: number;
+  missing_quantity_snapshot: number;
+  projected_available_after_plan: number;
+  minimum_stock_snapshot: number | null;
+  sufficient: boolean;
+  below_minimum_after_plan: boolean;
+  created_at: string;
+};
+
+export type ProductionExecution = {
+  id: string;
+  execution_number: string;
+  production_plan_id: string;
+  status: ProductionExecutionStatus;
+  comment: string | null;
+  created_by: string;
+  started_by: string | null;
+  started_at: string | null;
+  completed_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductionExecutionItem = {
+  id: string;
+  production_execution_id: string;
+  production_plan_item_id: string;
+  planned_bottles: number;
+  planned_cartons: number | null;
+  bottles_per_carton: number | null;
+  actual_bottles: number | null;
+  actual_cartons: number | null;
+  output_stock_item_id: string;
+  output_movement_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProductionIssue = {
+  id: string;
+  production_execution_id: string;
+  category: ProductionIssueCategory;
+  description: string;
+  reported_by: string;
+  created_at: string;
+  resolved_at: string | null;
+  resolved_by: string | null;
+  resolution_note: string | null;
+};
+
+export type ProductionReservationResolution = {
+  id: string;
+  production_execution_item_id: string;
+  production_plan_requirement_id: string;
+  stock_reservation_id: string;
+  stock_item_id: string;
+  original_quantity: number;
+  consumed_quantity: number;
+  released_quantity: number;
+  consumption_movement_id: string;
+  resolved_by: string;
+  resolved_at: string;
+};
+
+export type PreparedBottleRecipe = {
+  id: string;
+  output_stock_item_id: string;
+  product_format_id: string | null;
+  product_name: string;
+  format_name: string;
+  version: number;
+  is_active: boolean;
+  supersedes_recipe_id: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PreparedBottleRecipeComponent = {
+  id: string;
+  recipe_id: string;
+  component_stock_item_id: string;
+  quantity_per_output: number;
+  position: number;
+  created_at: string;
+};
+
+export type BottlePreparation = {
+  id: string;
+  preparation_number: string | null;
+  recipe_id: string;
+  location_id: string;
+  output_stock_item_id: string;
+  product_format_id: string | null;
+  product_name_snapshot: string;
+  format_name_snapshot: string;
+  output_item_name_snapshot: string;
+  recipe_version_snapshot: number;
+  planned_quantity: number | null;
+  actual_quantity: number | null;
+  status: PreparationStatus;
+  comment: string | null;
+  created_by: string;
+  confirmed_by: string | null;
+  confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type BottlePreparationComponent = {
+  id: string;
+  preparation_id: string;
+  component_stock_item_id: string;
+  component_name_snapshot: string;
+  component_category: StockItemCategory;
+  quantity_per_output: number;
+  required_quantity: number | null;
+  position: number;
   created_at: string;
 };
 
@@ -596,6 +836,128 @@ export type Database = {
         Update: { last_value?: number };
         Relationships: [];
       };
+      prepared_bottle_recipes: {
+        Row: PreparedBottleRecipe;
+        Insert: Omit<PreparedBottleRecipe, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<PreparedBottleRecipe, "id" | "created_at">>;
+        Relationships: [];
+      };
+      prepared_bottle_recipe_components: {
+        Row: PreparedBottleRecipeComponent;
+        Insert: Omit<PreparedBottleRecipeComponent, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<PreparedBottleRecipeComponent, "id" | "created_at">>;
+        Relationships: [];
+      };
+      bottle_preparations: {
+        Row: BottlePreparation;
+        Insert: Omit<BottlePreparation, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<BottlePreparation, "id" | "created_at">>;
+        Relationships: [];
+      };
+      bottle_preparation_components: {
+        Row: BottlePreparationComponent;
+        Insert: Omit<BottlePreparationComponent, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<BottlePreparationComponent, "id" | "created_at">>;
+        Relationships: [];
+      };
+      preparation_number_sequences: {
+        Row: { preparation_date: string; last_value: number };
+        Insert: { preparation_date: string; last_value: number };
+        Update: { last_value?: number };
+        Relationships: [];
+      };
+      products: {
+        Row: PlanningProduct;
+        Insert: Omit<PlanningProduct, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<PlanningProduct, "id" | "created_at">>;
+        Relationships: [];
+      };
+      packaging_formats: {
+        Row: PackagingFormat;
+        Insert: Omit<PackagingFormat, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<PackagingFormat, "id" | "created_at">>;
+        Relationships: [];
+      };
+      product_formats: {
+        Row: ProductFormat;
+        Insert: Omit<ProductFormat, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductFormat, "id" | "created_at">>;
+        Relationships: [];
+      };
+      packaging_rules: {
+        Row: PackagingRule;
+        Insert: Omit<PackagingRule, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<PackagingRule, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_plans: {
+        Row: ProductionPlan;
+        Insert: Omit<ProductionPlan, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductionPlan, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_plan_items: {
+        Row: ProductionPlanItem;
+        Insert: Omit<ProductionPlanItem, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductionPlanItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_recipes: {
+        Row: ProductionRecipe;
+        Insert: Omit<ProductionRecipe, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductionRecipe, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_recipe_components: {
+        Row: ProductionRecipeComponent;
+        Insert: Omit<ProductionRecipeComponent, "id" | "created_at"> & { id?: string };
+        Update: Partial<Omit<ProductionRecipeComponent, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_plan_requirements: {
+        Row: ProductionPlanRequirement;
+        Insert: Omit<ProductionPlanRequirement, "id" | "created_at"> & { id?: string };
+        Update: Partial<Omit<ProductionPlanRequirement, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_executions: {
+        Row: ProductionExecution;
+        Insert: Omit<ProductionExecution, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductionExecution, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_execution_items: {
+        Row: ProductionExecutionItem;
+        Insert: Omit<ProductionExecutionItem, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductionExecutionItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_issues: {
+        Row: ProductionIssue;
+        Insert: Omit<ProductionIssue, "id" | "created_at"> & { id?: string };
+        Update: Partial<Omit<ProductionIssue, "id" | "created_at">>;
+        Relationships: [];
+      };
+      production_reservation_resolutions: {
+        Row: ProductionReservationResolution;
+        Insert: Omit<ProductionReservationResolution, "id" | "resolved_at"> & { id?: string };
+        Update: Partial<Omit<ProductionReservationResolution, "id">>;
+        Relationships: [];
+      };
     };
     Views: {
       stock_balances: {
@@ -835,6 +1197,242 @@ export type Database = {
         };
         Returns: ReceiptListRow[];
       };
+      list_prepared_bottle_recipes: {
+        Args: { target_include_inactive?: boolean };
+        Returns: Json[];
+      };
+      get_prepared_bottle_recipe: {
+        Args: { target_recipe_id: string };
+        Returns: Json;
+      };
+      create_prepared_bottle_recipe: {
+        Args: {
+          target_output_stock_item_id: string;
+          target_product_format_id: string | null;
+          target_product_name: string;
+          target_format_name: string;
+          target_components: Json;
+        };
+        Returns: Json;
+      };
+      update_prepared_bottle_recipe: {
+        Args: {
+          target_recipe_id: string;
+          target_output_stock_item_id: string;
+          target_product_format_id: string | null;
+          target_product_name: string;
+          target_format_name: string;
+          target_components: Json;
+        };
+        Returns: Json;
+      };
+      deactivate_prepared_bottle_recipe: {
+        Args: { target_recipe_id: string };
+        Returns: Json;
+      };
+      calculate_preparation_requirements: {
+        Args: {
+          target_recipe_id: string;
+          target_quantity: number;
+          target_location_id?: string | null;
+        };
+        Returns: Json;
+      };
+      create_bottle_preparation_draft: {
+        Args: {
+          target_recipe_id: string;
+          target_location_id?: string | null;
+          target_planned_quantity?: number | null;
+          target_comment?: string | null;
+        };
+        Returns: BottlePreparation;
+      };
+      update_bottle_preparation_draft: {
+        Args: {
+          target_preparation_id: string;
+          target_recipe_id: string;
+          target_location_id: string;
+          target_planned_quantity: number;
+          target_actual_quantity: number;
+          target_comment: string | null;
+        };
+        Returns: BottlePreparation;
+      };
+      cancel_bottle_preparation: {
+        Args: { target_preparation_id: string };
+        Returns: BottlePreparation;
+      };
+      confirm_bottle_preparation: {
+        Args: { target_preparation_id: string };
+        Returns: Json;
+      };
+      get_bottle_preparation: {
+        Args: { target_preparation_id: string };
+        Returns: Json;
+      };
+      list_bottle_preparations: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_product_name?: string | null;
+          target_format_name?: string | null;
+          target_created_by?: string | null;
+          target_status?: PreparationStatus | null;
+          target_limit?: number;
+        };
+        Returns: Json[];
+      };
+      calculate_production_requirements: {
+        Args: {
+          target_product_format_id: string;
+          target_quantity: number;
+          target_mode: PlanningQuantityMode;
+          target_location_id?: string | null;
+        };
+        Returns: Json;
+      };
+      create_production_plan_draft: {
+        Args: {
+          target_production_date: string;
+          target_location_id?: string | null;
+          target_priority?: number | null;
+          target_assigned_to?: string | null;
+          target_comment?: string | null;
+        };
+        Returns: ProductionPlan;
+      };
+      update_production_plan_draft: {
+        Args: {
+          target_plan_id: string;
+          target_production_date: string;
+          target_location_id: string;
+          target_priority: number | null;
+          target_assigned_to: string | null;
+          target_comment: string | null;
+        };
+        Returns: ProductionPlan;
+      };
+      save_production_plan_item: {
+        Args: {
+          target_plan_id: string;
+          target_item_id: string | null;
+          target_product_format_id: string;
+          target_quantity: number;
+          target_mode: PlanningQuantityMode;
+          target_position?: number | null;
+        };
+        Returns: ProductionPlanItem;
+      };
+      plan_production_plan: { Args: { target_plan_id: string }; Returns: Json };
+      validate_production_plan: { Args: { target_plan_id: string }; Returns: Json };
+      cancel_production_plan: { Args: { target_plan_id: string }; Returns: ProductionPlan };
+      get_production_plan: { Args: { target_plan_id: string }; Returns: Json };
+      list_production_plans: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_product_id?: string | null;
+          target_status?: ProductionPlanStatus | null;
+          target_sufficiency?: string | null;
+          target_limit?: number;
+        };
+        Returns: Json[];
+      };
+      list_factory_production_missions: {
+        Args: { target_date?: string };
+        Returns: Json[];
+      };
+      reserve_production_plan: { Args: { target_plan_id: string }; Returns: Json };
+      release_production_plan_reservations: {
+        Args: { target_plan_id: string };
+        Returns: Json;
+      };
+      get_production_plan_reservations: {
+        Args: { target_plan_id: string };
+        Returns: Json;
+      };
+      list_production_plan_reservation_history: {
+        Args: { target_plan_id?: string | null; target_limit?: number };
+        Returns: Json[];
+      };
+      prepare_production_execution: { Args: { target_plan_id: string }; Returns: Json };
+      start_production_execution: { Args: { target_execution_id: string }; Returns: Json };
+      report_production_issue: {
+        Args: {
+          target_execution_id: string;
+          target_category: ProductionIssueCategory;
+          target_description: string;
+        };
+        Returns: Json;
+      };
+      resolve_production_issue: {
+        Args: {
+          target_issue_id: string;
+          target_resume_status: ProductionExecutionStatus;
+          target_resolution_note: string;
+        };
+        Returns: Json;
+      };
+      calculate_production_execution_completion: {
+        Args: { target_execution_id: string; target_actuals: Json };
+        Returns: Json;
+      };
+      complete_production_execution: {
+        Args: { target_execution_id: string; target_actuals: Json; target_comment: string | null };
+        Returns: Json;
+      };
+      get_production_execution: { Args: { target_execution_id: string }; Returns: Json };
+      list_production_executions: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_status?: ProductionExecutionStatus | null;
+          target_limit?: number;
+        };
+        Returns: Json[];
+      };
+      list_factory_production_execution_missions: {
+        Args: { target_date?: string };
+        Returns: Json[];
+      };
+      save_planning_product: {
+        Args: {
+          target_id: string | null;
+          target_code: string | null;
+          target_name: string;
+          target_is_active?: boolean;
+        };
+        Returns: PlanningProduct;
+      };
+      save_product_format: {
+        Args: {
+          target_id: string | null;
+          target_product_id: string;
+          target_format_id: string;
+          target_is_active?: boolean;
+        };
+        Returns: ProductFormat;
+      };
+      configure_packaging_rule: {
+        Args: { target_format_id: string; target_bottles_per_carton: number };
+        Returns: PackagingRule;
+      };
+      create_production_recipe: {
+        Args: {
+          target_product_format_id: string;
+          target_output_stock_item_id: string;
+          target_components: Json;
+        };
+        Returns: Json;
+      };
+      update_production_recipe: {
+        Args: {
+          target_recipe_id: string;
+          target_output_stock_item_id: string;
+          target_components: Json;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       app_role: AppRole;
@@ -848,6 +1446,13 @@ export type Database = {
       stock_reservation_status: StockReservationStatus;
       stock_adjustment_status: StockAdjustmentStatus;
       receipt_status: ReceiptStatus;
+      preparation_status: PreparationStatus;
+      production_plan_status: ProductionPlanStatus;
+      production_reservation_status: ProductionReservationStatus;
+      planning_quantity_mode: PlanningQuantityMode;
+      production_component_role: ProductionComponentRole;
+      production_execution_status: ProductionExecutionStatus;
+      production_issue_category: ProductionIssueCategory;
     };
     CompositeTypes: Record<string, never>;
   };

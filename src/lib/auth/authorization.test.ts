@@ -8,6 +8,7 @@ const allRoutes = [
   "/facolub/today",
   "/facolub/stock",
   "/facolub/receiving",
+  "/facolub/preparation",
   "/facolub/planning",
   "/facolub/production",
   "/facolub/dispatch",
@@ -41,7 +42,7 @@ describe("FACOLUB authorization matrix", () => {
       "/facolub/today",
       "/facolub/stock",
       "/facolub/receiving",
-      "/facolub/planning",
+      "/facolub/preparation",
       "/facolub/production",
       "/facolub/dispatch",
       "/facolub/history",
@@ -49,6 +50,21 @@ describe("FACOLUB authorization matrix", () => {
     ]);
     for (const route of allRoutes)
       expect(canAccessFacolubPath("factory", route)).toBe(allowed.has(route));
+  });
+
+  test("production planning stays Management/Admin-only while Factory uses Today missions", () => {
+    expect(canAccessFacolubPath("admin", "/facolub/planning/new")).toBe(true);
+    expect(canAccessFacolubPath("management", "/facolub/planning/plan-id")).toBe(true);
+    expect(canAccessFacolubPath("factory", "/facolub/planning")).toBe(false);
+    expect(canAccessFacolubPath("factory", "/facolub/planning/plan-id")).toBe(false);
+    expect(canAccessFacolubPath("factory", "/facolub/today")).toBe(true);
+  });
+
+  test("production execution details are operational for every FACOLUB role", () => {
+    const detail = "/facolub/production/5a8f8b25-7925-4cf3-a31f-62e682280e09";
+    expect(canAccessFacolubPath("admin", detail)).toBe(true);
+    expect(canAccessFacolubPath("management", detail)).toBe(true);
+    expect(canAccessFacolubPath("factory", detail)).toBe(true);
   });
 
   test("unknown paths fail closed for every role", () => {
@@ -102,6 +118,22 @@ describe("FACOLUB authorization matrix", () => {
       expect(canAccessFacolubPath("management", route)).toBe(true);
       expect(canAccessFacolubPath("factory", route)).toBe(true);
     }
+  });
+
+  test("prepared bottle workflow is operational for all roles and recipe settings are Admin-only", () => {
+    const routes = [
+      "/facolub/preparation/new",
+      "/facolub/preparation/history",
+      "/facolub/preparation/5a8f8b25-7925-4cf3-a31f-62e682280e09",
+    ];
+    for (const route of routes) {
+      expect(canAccessFacolubPath("admin", route)).toBe(true);
+      expect(canAccessFacolubPath("management", route)).toBe(true);
+      expect(canAccessFacolubPath("factory", route)).toBe(true);
+    }
+    expect(canAccessFacolubPath("admin", "/facolub/settings/prepared-bottles")).toBe(true);
+    expect(canAccessFacolubPath("management", "/facolub/settings/prepared-bottles")).toBe(false);
+    expect(canAccessFacolubPath("factory", "/facolub/settings/prepared-bottles")).toBe(false);
   });
 
   test("each role has the correct landing path", () => {

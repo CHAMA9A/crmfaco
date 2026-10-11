@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TodayPage } from "@/components/app/pages";
+import { getFactoryProductionMissionsFn } from "@/lib/production/functions";
 export const Route = createFileRoute("/facolub/today")({
   head: () => ({
     meta: [
@@ -11,5 +12,12 @@ export const Route = createFileRoute("/facolub/today")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: TodayPage,
+  loader: ({ context }) =>
+    context.auth?.status === "authenticated" && context.auth.user.profile.role === "factory"
+      ? getFactoryProductionMissionsFn()
+      : [],
+  component: TodayRoute,
 });
+function TodayRoute() {
+  return <TodayPage productionMissions={Route.useLoaderData()} />;
+}

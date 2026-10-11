@@ -40,6 +40,7 @@ export function StatusBadge({
     | "In Progress"
     | "Done"
     | "Blocked"
+    | "Cancelled"
     | "Pending Approval"
     | "Active"
     | "Inactive";
