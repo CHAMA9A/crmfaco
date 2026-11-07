@@ -100,24 +100,44 @@ export const createCustomerFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const supabase = await getInvoiceManagerClient();
     const emptyToNull = (value: string) => value || null;
-    const { data: customer, error } = await supabase
-      .from("customers")
-      .insert({
+    const { data: duplicates, error: duplicateError } = await supabase.rpc(
+      "get_customer_possible_duplicates",
+      {
+        target_company_name: data.companyName,
+        target_ice: emptyToNull(data.ice),
+        target_email: emptyToNull(data.email),
+        target_phone: emptyToNull(data.phone),
+        target_exclude_customer_id: null,
+      },
+    );
+    if (duplicateError) throw new Error("Unable to check customer duplicates");
+    if (duplicates?.length) {
+      throw new Error("Possible duplicate customer. Verify or create it from the Customers CRM.");
+    }
+
+    const { data: customer, error } = await supabase.rpc("save_customer", {
+      target_customer_id: null,
+      target_payload: {
         company_name: data.companyName,
         contact_person: emptyToNull(data.contactPerson),
         phone: emptyToNull(data.phone),
         email: emptyToNull(data.email),
         city: emptyToNull(data.city),
-        address: emptyToNull(data.address),
+        address_line1: emptyToNull(data.address),
         ice: emptyToNull(data.ice),
         purchase_order_default: emptyToNull(data.purchaseOrderDefault),
-        is_active: true,
-      })
-      .select("id, company_name, city, address, ice, purchase_order_default")
-      .single();
+      },
+    });
 
     if (error || !customer) throw new Error("Unable to create customer");
-    return customer;
+    return {
+      id: customer.id,
+      company_name: customer.company_name,
+      city: customer.city,
+      address: customer.address,
+      ice: customer.ice,
+      purchase_order_default: customer.purchase_order_default,
+    };
   });
 
 export const createInvoiceDraftFn = createServerFn({ method: "POST" })
@@ -163,7 +183,7 @@ export const getInvoiceDocumentFn = createServerFn({ method: "GET" })
       supabase
         .from("invoices")
         .select(
-          "id, order_id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, status, currency, subtotal_ht, tax_rate, tax_total, total_ttc, prices_confirmed_at",
+          "id, order_id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, customer_if_snapshot, customer_rc_snapshot, status, currency, subtotal_ht, tax_rate, tax_total, total_ttc, prices_confirmed_at",
         )
         .eq("id", data.invoiceId)
         .single(),

@@ -66,6 +66,13 @@ Run these files in the Supabase SQL Editor, one at a time, and review each resul
 62. `097_invoice_ttc_foundation.sql` (explicit HT/TVA/TTC snapshot fields and nullable default tax configuration)
 63. `098_invoice_ttc_functions.sql` (database-authoritative invoice totals and Admin tax-rate configuration)
 64. `099_demo_cleanup_verification.sql` (safe demo deactivation plus catalog, packaging, receiving, and TTC audit)
+65. `100_invoice_tva_20.sql` (confirmed 20% default TVA; recalculates drafts and preserves issued invoices)
+66. `101_invoice_tva_recalculation_fix.sql` (calculates draft TVA with the new 20% rate and repairs zero-tax drafts)
+67. `110_customer_master_upgrade.sql` (additive authoritative CRM fields, safe customer codes, notes, and HT custom-price foundation)
+68. `111_customer_functions.sql` (validated customer CRUD, duplicate detection, search, snapshot helper, and derived history)
+69. `112_customer_rls.sql` (Admin/Management CRM visibility, RPC-only writes, and Factory denial)
+70. `113_customer_document_integration.sql` (legal snapshots and customer delivery defaults for orders/documents)
+71. `114_customer_verification.sql` (rollback-only CRM, duplicate, search, deactivation, reference, and role tests)
 
 Files 001-004 and 006 contain production schema/security only. Test data is never mixed into them.
 
@@ -149,3 +156,14 @@ bottle mappings already exist, and reports missing mappings instead of guessing.
 introduce explicit authoritative HT/TVA/TTC semantics; the default TVA rate is deliberately null
 until confirmed and configured by an Admin. File 099 deactivates only explicit DEMO/TEST fixtures,
 preserves confirmed history, and audits the installed rules and official 41-SKU catalog.
+File 100 records the subsequently confirmed SOMA TVA rate of 20%. It applies the rate to new
+invoices and existing drafts only; issued/cancelled invoice snapshots remain unchanged.
+File 101 fixes recalculation when a draft moves from a null or previous rate to 20%. It recalculates
+all drafts as `TVA = round(TOTAL HT * 20 / 100, 2)` and audits final invoices without rewriting them.
+
+Files 110-113 are the additive Customer CRM module and must be run in order after the invoice TVA
+patches and official product catalog. They extend the existing `customers` table, preserve all
+foreign keys and issued snapshots, generate concurrency-safe `CLI-000001` codes with a sequence,
+and keep Factory users out of legal/commercial CRM data. Customer-specific prices are HT only and
+do not implement pricing formulas. File 114 is rollback-only, requires active FACOLUB users for
+all three roles, and leaves no test customers, notes, prices, documents, or numbering increments.

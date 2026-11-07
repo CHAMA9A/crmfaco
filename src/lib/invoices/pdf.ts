@@ -314,6 +314,8 @@ function drawFirstPageHeader(
     ["VILLE :", invoice.customer_city_snapshot],
     ["Adresse :", invoice.customer_address_snapshot],
     ["ICE :", invoice.customer_ice_snapshot],
+    ["IF :", invoice.customer_if_snapshot ?? null],
+    ["RC :", invoice.customer_rc_snapshot ?? null],
   ];
   const clientBottom = drawAdaptiveInfoBox(
     page,

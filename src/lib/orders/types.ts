@@ -36,6 +36,9 @@ export type OrderEditorData = {
     company_name: string;
     city: string | null;
     address: string | null;
+    customer_code: string | null;
+    delivery_city: string | null;
+    default_delivery_address: string | null;
     purchase_order_default: string | null;
   }>;
 };

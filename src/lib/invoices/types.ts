@@ -20,6 +20,8 @@ export type InvoiceDocument = {
   customer_city_snapshot: string | null;
   customer_address_snapshot: string | null;
   customer_ice_snapshot: string | null;
+  customer_if_snapshot?: string | null;
+  customer_rc_snapshot?: string | null;
   status: InvoiceStatus;
   currency: string;
   subtotal_ht: string;

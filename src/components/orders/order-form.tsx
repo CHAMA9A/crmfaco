@@ -12,15 +12,36 @@ import type { DraftOrderEditorData, OrderEditorData } from "@/lib/orders/types";
 
 type Line = { key: number; description: string; quantity: string };
 
-export function OrderForm({ data }: { data: OrderEditorData | DraftOrderEditorData }) {
+export function OrderForm({
+  data,
+  selectedCustomerId,
+}: {
+  data: OrderEditorData | DraftOrderEditorData;
+  selectedCustomerId?: string;
+}) {
   const createOrder = useServerFn(createOrderFn);
   const updateOrder = useServerFn(updateOrderFn);
   const existing = "order" in data ? data : null;
-  const [customerId, setCustomerId] = useState(existing?.order.customer_id ?? "");
+  const selectedCustomer = data.customers.find((customer) => customer.id === selectedCustomerId);
+  const [customerId, setCustomerId] = useState(
+    existing?.order.customer_id ?? selectedCustomer?.id ?? "",
+  );
   const [date, setDate] = useState(existing?.order.order_date ?? data.today);
-  const [po, setPo] = useState(existing?.order.purchase_order ?? "");
-  const [city, setCity] = useState(existing?.order.destination_city ?? "");
-  const [address, setAddress] = useState(existing?.order.destination_address ?? "");
+  const [po, setPo] = useState(
+    existing?.order.purchase_order ?? selectedCustomer?.purchase_order_default ?? "",
+  );
+  const [city, setCity] = useState(
+    existing?.order.destination_city ??
+      selectedCustomer?.delivery_city ??
+      selectedCustomer?.city ??
+      "",
+  );
+  const [address, setAddress] = useState(
+    existing?.order.destination_address ??
+      selectedCustomer?.default_delivery_address ??
+      selectedCustomer?.address ??
+      "",
+  );
   const [lines, setLines] = useState<Line[]>(
     existing
       ? existing.items.map((item, index) => ({
@@ -36,8 +57,8 @@ export function OrderForm({ data }: { data: OrderEditorData | DraftOrderEditorDa
     setCustomerId(id);
     const c = data.customers.find((x) => x.id === id);
     setPo(c?.purchase_order_default ?? "");
-    setCity(c?.city ?? "");
-    setAddress(c?.address ?? "");
+    setCity(c?.delivery_city ?? c?.city ?? "");
+    setAddress(c?.default_delivery_address ?? c?.address ?? "");
   };
   const updateLine = (key: number, field: "description" | "quantity", value: string) =>
     setLines((current) =>
@@ -87,6 +108,7 @@ export function OrderForm({ data }: { data: OrderEditorData | DraftOrderEditorDa
               {data.customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.company_name}
+                  {c.customer_code ? ` · ${c.customer_code}` : ""}
                 </option>
               ))}
             </select>

@@ -34,6 +34,9 @@ import { Route as FacolubSettingsRouteImport } from './routes/facolub.settings'
 import { Route as FacolubStockRouteImport } from './routes/facolub.stock'
 import { Route as FacolubTodayRouteImport } from './routes/facolub.today'
 import { Route as FacolubUsersRouteImport } from './routes/facolub.users'
+import { Route as FacolubCustomersIndexRouteImport } from './routes/facolub.customers.index'
+import { Route as FacolubCustomersCustomerIdRouteImport } from './routes/facolub.customers.$customerId'
+import { Route as FacolubCustomersNewRouteImport } from './routes/facolub.customers.new'
 import { Route as FacolubDocumentsIndexRouteImport } from './routes/facolub.documents.index'
 import { Route as FacolubPlanningIndexRouteImport } from './routes/facolub.planning.index'
 import { Route as FacolubPlanningPlanIdRouteImport } from './routes/facolub.planning.$planId'
@@ -57,6 +60,8 @@ import { Route as FacolubStockIndexRouteImport } from './routes/facolub.stock.in
 import { Route as FacolubStockAdjustmentsRouteImport } from './routes/facolub.stock.adjustments'
 import { Route as FacolubStockCountsRouteImport } from './routes/facolub.stock.counts'
 import { Route as FacolubStockHistoryRouteImport } from './routes/facolub.stock.history'
+import { Route as FacolubCustomersCustomerIdIndexRouteImport } from './routes/facolub.customers.$customerId.index'
+import { Route as FacolubCustomersCustomerIdEditRouteImport } from './routes/facolub.customers.$customerId.edit'
 import { Route as FacolubDocumentsInvoicesInvoiceIdRouteImport } from './routes/facolub.documents.invoices.$invoiceId'
 import { Route as FacolubDocumentsOrdersOrderIdRouteImport } from './routes/facolub.documents.orders.$orderId'
 import { Route as FacolubDocumentsOrdersNewRouteImport } from './routes/facolub.documents.orders.new'
@@ -202,6 +207,22 @@ const FacolubUsersRoute = FacolubUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => FacolubRoute,
 } as any)
+const FacolubCustomersIndexRoute = FacolubCustomersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FacolubCustomersRoute,
+} as any)
+const FacolubCustomersCustomerIdRoute =
+  FacolubCustomersCustomerIdRouteImport.update({
+    id: '/$customerId',
+    path: '/$customerId',
+    getParentRoute: () => FacolubCustomersRoute,
+  } as any)
+const FacolubCustomersNewRoute = FacolubCustomersNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => FacolubCustomersRoute,
+} as any)
 const FacolubDocumentsIndexRoute = FacolubDocumentsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -325,6 +346,18 @@ const FacolubStockHistoryRoute = FacolubStockHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => FacolubStockRoute,
 } as any)
+const FacolubCustomersCustomerIdIndexRoute =
+  FacolubCustomersCustomerIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => FacolubCustomersCustomerIdRoute,
+  } as any)
+const FacolubCustomersCustomerIdEditRoute =
+  FacolubCustomersCustomerIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => FacolubCustomersCustomerIdRoute,
+  } as any)
 const FacolubDocumentsInvoicesInvoiceIdRoute =
   FacolubDocumentsInvoicesInvoiceIdRouteImport.update({
     id: '/invoices/$invoiceId',
@@ -448,7 +481,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/facolub/analytics': typeof FacolubAnalyticsRoute
   '/facolub/costs': typeof FacolubCostsRoute
-  '/facolub/customers': typeof FacolubCustomersRoute
+  '/facolub/customers': typeof FacolubCustomersRouteWithChildren
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/documents': typeof FacolubDocumentsRouteWithChildren
   '/facolub/history': typeof FacolubHistoryRoute
@@ -464,6 +497,8 @@ export interface FileRoutesByFullPath {
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub/': typeof FacolubIndexRoute
+  '/facolub/customers/$customerId': typeof FacolubCustomersCustomerIdRouteWithChildren
+  '/facolub/customers/new': typeof FacolubCustomersNewRoute
   '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
   '/facolub/planning/new': typeof FacolubPlanningNewRoute
   '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
@@ -480,6 +515,7 @@ export interface FileRoutesByFullPath {
   '/facolub/stock/adjustments': typeof FacolubStockAdjustmentsRoute
   '/facolub/stock/counts': typeof FacolubStockCountsRouteWithChildren
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
+  '/facolub/customers/': typeof FacolubCustomersIndexRoute
   '/facolub/documents/': typeof FacolubDocumentsIndexRoute
   '/facolub/planning/': typeof FacolubPlanningIndexRoute
   '/facolub/preparation/': typeof FacolubPreparationIndexRoute
@@ -487,11 +523,13 @@ export interface FileRoutesByFullPath {
   '/facolub/receiving/': typeof FacolubReceivingIndexRoute
   '/facolub/settings/': typeof FacolubSettingsIndexRoute
   '/facolub/stock/': typeof FacolubStockIndexRoute
+  '/facolub/customers/$customerId/edit': typeof FacolubCustomersCustomerIdEditRoute
   '/facolub/documents/invoices/$invoiceId': typeof FacolubDocumentsInvoicesInvoiceIdRouteWithChildren
   '/facolub/documents/orders/$orderId': typeof FacolubDocumentsOrdersOrderIdRouteWithChildren
   '/facolub/documents/orders/new': typeof FacolubDocumentsOrdersNewRoute
   '/facolub/stock/counts/$countId': typeof FacolubStockCountsCountIdRoute
   '/facolub/stock/counts/new': typeof FacolubStockCountsNewRoute
+  '/facolub/customers/$customerId/': typeof FacolubCustomersCustomerIdIndexRoute
   '/facolub/stock/counts/': typeof FacolubStockCountsIndexRoute
   '/facolub/documents/invoices/$invoiceId/preview': typeof FacolubDocumentsInvoicesInvoiceIdPreviewRoute
   '/facolub/documents/orders/$orderId/delivery-note': typeof FacolubDocumentsOrdersOrderIdDeliveryNoteRouteWithChildren
@@ -516,7 +554,6 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/facolub/analytics': typeof FacolubAnalyticsRoute
   '/facolub/costs': typeof FacolubCostsRoute
-  '/facolub/customers': typeof FacolubCustomersRoute
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/history': typeof FacolubHistoryRoute
   '/facolub/prices': typeof FacolubPricesRoute
@@ -525,6 +562,7 @@ export interface FileRoutesByTo {
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub': typeof FacolubIndexRoute
+  '/facolub/customers/new': typeof FacolubCustomersNewRoute
   '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
   '/facolub/planning/new': typeof FacolubPlanningNewRoute
   '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
@@ -540,6 +578,7 @@ export interface FileRoutesByTo {
   '/facolub/settings/suppliers': typeof FacolubSettingsSuppliersRoute
   '/facolub/stock/adjustments': typeof FacolubStockAdjustmentsRoute
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
+  '/facolub/customers': typeof FacolubCustomersIndexRoute
   '/facolub/documents': typeof FacolubDocumentsIndexRoute
   '/facolub/planning': typeof FacolubPlanningIndexRoute
   '/facolub/preparation': typeof FacolubPreparationIndexRoute
@@ -547,9 +586,11 @@ export interface FileRoutesByTo {
   '/facolub/receiving': typeof FacolubReceivingIndexRoute
   '/facolub/settings': typeof FacolubSettingsIndexRoute
   '/facolub/stock': typeof FacolubStockIndexRoute
+  '/facolub/customers/$customerId/edit': typeof FacolubCustomersCustomerIdEditRoute
   '/facolub/documents/orders/new': typeof FacolubDocumentsOrdersNewRoute
   '/facolub/stock/counts/$countId': typeof FacolubStockCountsCountIdRoute
   '/facolub/stock/counts/new': typeof FacolubStockCountsNewRoute
+  '/facolub/customers/$customerId': typeof FacolubCustomersCustomerIdIndexRoute
   '/facolub/stock/counts': typeof FacolubStockCountsIndexRoute
   '/facolub/documents/invoices/$invoiceId/preview': typeof FacolubDocumentsInvoicesInvoiceIdPreviewRoute
   '/facolub/documents/orders/$orderId/edit': typeof FacolubDocumentsOrdersOrderIdEditRoute
@@ -573,7 +614,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/facolub/analytics': typeof FacolubAnalyticsRoute
   '/facolub/costs': typeof FacolubCostsRoute
-  '/facolub/customers': typeof FacolubCustomersRoute
+  '/facolub/customers': typeof FacolubCustomersRouteWithChildren
   '/facolub/dispatch': typeof FacolubDispatchRoute
   '/facolub/documents': typeof FacolubDocumentsRouteWithChildren
   '/facolub/history': typeof FacolubHistoryRoute
@@ -589,6 +630,8 @@ export interface FileRoutesById {
   '/facolub/today': typeof FacolubTodayRoute
   '/facolub/users': typeof FacolubUsersRoute
   '/facolub/': typeof FacolubIndexRoute
+  '/facolub/customers/$customerId': typeof FacolubCustomersCustomerIdRouteWithChildren
+  '/facolub/customers/new': typeof FacolubCustomersNewRoute
   '/facolub/planning/$planId': typeof FacolubPlanningPlanIdRoute
   '/facolub/planning/new': typeof FacolubPlanningNewRoute
   '/facolub/preparation/$preparationId': typeof FacolubPreparationPreparationIdRoute
@@ -605,6 +648,7 @@ export interface FileRoutesById {
   '/facolub/stock/adjustments': typeof FacolubStockAdjustmentsRoute
   '/facolub/stock/counts': typeof FacolubStockCountsRouteWithChildren
   '/facolub/stock/history': typeof FacolubStockHistoryRoute
+  '/facolub/customers/': typeof FacolubCustomersIndexRoute
   '/facolub/documents/': typeof FacolubDocumentsIndexRoute
   '/facolub/planning/': typeof FacolubPlanningIndexRoute
   '/facolub/preparation/': typeof FacolubPreparationIndexRoute
@@ -612,11 +656,13 @@ export interface FileRoutesById {
   '/facolub/receiving/': typeof FacolubReceivingIndexRoute
   '/facolub/settings/': typeof FacolubSettingsIndexRoute
   '/facolub/stock/': typeof FacolubStockIndexRoute
+  '/facolub/customers/$customerId/edit': typeof FacolubCustomersCustomerIdEditRoute
   '/facolub/documents/invoices/$invoiceId': typeof FacolubDocumentsInvoicesInvoiceIdRouteWithChildren
   '/facolub/documents/orders/$orderId': typeof FacolubDocumentsOrdersOrderIdRouteWithChildren
   '/facolub/documents/orders/new': typeof FacolubDocumentsOrdersNewRoute
   '/facolub/stock/counts/$countId': typeof FacolubStockCountsCountIdRoute
   '/facolub/stock/counts/new': typeof FacolubStockCountsNewRoute
+  '/facolub/customers/$customerId/': typeof FacolubCustomersCustomerIdIndexRoute
   '/facolub/stock/counts/': typeof FacolubStockCountsIndexRoute
   '/facolub/documents/invoices/$invoiceId/preview': typeof FacolubDocumentsInvoicesInvoiceIdPreviewRoute
   '/facolub/documents/orders/$orderId/delivery-note': typeof FacolubDocumentsOrdersOrderIdDeliveryNoteRouteWithChildren
@@ -660,6 +706,8 @@ export interface FileRouteTypes {
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub/'
+    | '/facolub/customers/$customerId'
+    | '/facolub/customers/new'
     | '/facolub/planning/$planId'
     | '/facolub/planning/new'
     | '/facolub/preparation/$preparationId'
@@ -676,6 +724,7 @@ export interface FileRouteTypes {
     | '/facolub/stock/adjustments'
     | '/facolub/stock/counts'
     | '/facolub/stock/history'
+    | '/facolub/customers/'
     | '/facolub/documents/'
     | '/facolub/planning/'
     | '/facolub/preparation/'
@@ -683,11 +732,13 @@ export interface FileRouteTypes {
     | '/facolub/receiving/'
     | '/facolub/settings/'
     | '/facolub/stock/'
+    | '/facolub/customers/$customerId/edit'
     | '/facolub/documents/invoices/$invoiceId'
     | '/facolub/documents/orders/$orderId'
     | '/facolub/documents/orders/new'
     | '/facolub/stock/counts/$countId'
     | '/facolub/stock/counts/new'
+    | '/facolub/customers/$customerId/'
     | '/facolub/stock/counts/'
     | '/facolub/documents/invoices/$invoiceId/preview'
     | '/facolub/documents/orders/$orderId/delivery-note'
@@ -712,7 +763,6 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/facolub/analytics'
     | '/facolub/costs'
-    | '/facolub/customers'
     | '/facolub/dispatch'
     | '/facolub/history'
     | '/facolub/prices'
@@ -721,6 +771,7 @@ export interface FileRouteTypes {
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub'
+    | '/facolub/customers/new'
     | '/facolub/planning/$planId'
     | '/facolub/planning/new'
     | '/facolub/preparation/$preparationId'
@@ -736,6 +787,7 @@ export interface FileRouteTypes {
     | '/facolub/settings/suppliers'
     | '/facolub/stock/adjustments'
     | '/facolub/stock/history'
+    | '/facolub/customers'
     | '/facolub/documents'
     | '/facolub/planning'
     | '/facolub/preparation'
@@ -743,9 +795,11 @@ export interface FileRouteTypes {
     | '/facolub/receiving'
     | '/facolub/settings'
     | '/facolub/stock'
+    | '/facolub/customers/$customerId/edit'
     | '/facolub/documents/orders/new'
     | '/facolub/stock/counts/$countId'
     | '/facolub/stock/counts/new'
+    | '/facolub/customers/$customerId'
     | '/facolub/stock/counts'
     | '/facolub/documents/invoices/$invoiceId/preview'
     | '/facolub/documents/orders/$orderId/edit'
@@ -784,6 +838,8 @@ export interface FileRouteTypes {
     | '/facolub/today'
     | '/facolub/users'
     | '/facolub/'
+    | '/facolub/customers/$customerId'
+    | '/facolub/customers/new'
     | '/facolub/planning/$planId'
     | '/facolub/planning/new'
     | '/facolub/preparation/$preparationId'
@@ -800,6 +856,7 @@ export interface FileRouteTypes {
     | '/facolub/stock/adjustments'
     | '/facolub/stock/counts'
     | '/facolub/stock/history'
+    | '/facolub/customers/'
     | '/facolub/documents/'
     | '/facolub/planning/'
     | '/facolub/preparation/'
@@ -807,11 +864,13 @@ export interface FileRouteTypes {
     | '/facolub/receiving/'
     | '/facolub/settings/'
     | '/facolub/stock/'
+    | '/facolub/customers/$customerId/edit'
     | '/facolub/documents/invoices/$invoiceId'
     | '/facolub/documents/orders/$orderId'
     | '/facolub/documents/orders/new'
     | '/facolub/stock/counts/$countId'
     | '/facolub/stock/counts/new'
+    | '/facolub/customers/$customerId/'
     | '/facolub/stock/counts/'
     | '/facolub/documents/invoices/$invoiceId/preview'
     | '/facolub/documents/orders/$orderId/delivery-note'
@@ -1015,6 +1074,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacolubUsersRouteImport
       parentRoute: typeof FacolubRoute
     }
+    '/facolub/customers/': {
+      id: '/facolub/customers/'
+      path: '/'
+      fullPath: '/facolub/customers/'
+      preLoaderRoute: typeof FacolubCustomersIndexRouteImport
+      parentRoute: typeof FacolubCustomersRoute
+    }
+    '/facolub/customers/$customerId': {
+      id: '/facolub/customers/$customerId'
+      path: '/$customerId'
+      fullPath: '/facolub/customers/$customerId'
+      preLoaderRoute: typeof FacolubCustomersCustomerIdRouteImport
+      parentRoute: typeof FacolubCustomersRoute
+    }
+    '/facolub/customers/new': {
+      id: '/facolub/customers/new'
+      path: '/new'
+      fullPath: '/facolub/customers/new'
+      preLoaderRoute: typeof FacolubCustomersNewRouteImport
+      parentRoute: typeof FacolubCustomersRoute
+    }
     '/facolub/documents/': {
       id: '/facolub/documents/'
       path: '/'
@@ -1176,6 +1256,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacolubStockHistoryRouteImport
       parentRoute: typeof FacolubStockRoute
     }
+    '/facolub/customers/$customerId/': {
+      id: '/facolub/customers/$customerId/'
+      path: '/'
+      fullPath: '/facolub/customers/$customerId/'
+      preLoaderRoute: typeof FacolubCustomersCustomerIdIndexRouteImport
+      parentRoute: typeof FacolubCustomersCustomerIdRoute
+    }
+    '/facolub/customers/$customerId/edit': {
+      id: '/facolub/customers/$customerId/edit'
+      path: '/edit'
+      fullPath: '/facolub/customers/$customerId/edit'
+      preLoaderRoute: typeof FacolubCustomersCustomerIdEditRouteImport
+      parentRoute: typeof FacolubCustomersCustomerIdRoute
+    }
     '/facolub/documents/invoices/$invoiceId': {
       id: '/facolub/documents/invoices/$invoiceId'
       path: '/invoices/$invoiceId'
@@ -1311,6 +1405,37 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface FacolubCustomersCustomerIdRouteChildren {
+  FacolubCustomersCustomerIdEditRoute: typeof FacolubCustomersCustomerIdEditRoute
+  FacolubCustomersCustomerIdIndexRoute: typeof FacolubCustomersCustomerIdIndexRoute
+}
+
+const FacolubCustomersCustomerIdRouteChildren: FacolubCustomersCustomerIdRouteChildren =
+  {
+    FacolubCustomersCustomerIdEditRoute: FacolubCustomersCustomerIdEditRoute,
+    FacolubCustomersCustomerIdIndexRoute: FacolubCustomersCustomerIdIndexRoute,
+  }
+
+const FacolubCustomersCustomerIdRouteWithChildren =
+  FacolubCustomersCustomerIdRoute._addFileChildren(
+    FacolubCustomersCustomerIdRouteChildren,
+  )
+
+interface FacolubCustomersRouteChildren {
+  FacolubCustomersCustomerIdRoute: typeof FacolubCustomersCustomerIdRouteWithChildren
+  FacolubCustomersNewRoute: typeof FacolubCustomersNewRoute
+  FacolubCustomersIndexRoute: typeof FacolubCustomersIndexRoute
+}
+
+const FacolubCustomersRouteChildren: FacolubCustomersRouteChildren = {
+  FacolubCustomersCustomerIdRoute: FacolubCustomersCustomerIdRouteWithChildren,
+  FacolubCustomersNewRoute: FacolubCustomersNewRoute,
+  FacolubCustomersIndexRoute: FacolubCustomersIndexRoute,
+}
+
+const FacolubCustomersRouteWithChildren =
+  FacolubCustomersRoute._addFileChildren(FacolubCustomersRouteChildren)
 
 interface FacolubDocumentsInvoicesInvoiceIdRouteChildren {
   FacolubDocumentsInvoicesInvoiceIdPreviewRoute: typeof FacolubDocumentsInvoicesInvoiceIdPreviewRoute
@@ -1550,7 +1675,7 @@ const FacolubStockRouteWithChildren = FacolubStockRoute._addFileChildren(
 interface FacolubRouteChildren {
   FacolubAnalyticsRoute: typeof FacolubAnalyticsRoute
   FacolubCostsRoute: typeof FacolubCostsRoute
-  FacolubCustomersRoute: typeof FacolubCustomersRoute
+  FacolubCustomersRoute: typeof FacolubCustomersRouteWithChildren
   FacolubDispatchRoute: typeof FacolubDispatchRoute
   FacolubDocumentsRoute: typeof FacolubDocumentsRouteWithChildren
   FacolubHistoryRoute: typeof FacolubHistoryRoute
@@ -1571,7 +1696,7 @@ interface FacolubRouteChildren {
 const FacolubRouteChildren: FacolubRouteChildren = {
   FacolubAnalyticsRoute: FacolubAnalyticsRoute,
   FacolubCostsRoute: FacolubCostsRoute,
-  FacolubCustomersRoute: FacolubCustomersRoute,
+  FacolubCustomersRoute: FacolubCustomersRouteWithChildren,
   FacolubDispatchRoute: FacolubDispatchRoute,
   FacolubDocumentsRoute: FacolubDocumentsRouteWithChildren,
   FacolubHistoryRoute: FacolubHistoryRoute,

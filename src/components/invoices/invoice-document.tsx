@@ -161,6 +161,18 @@ export function InvoiceDocument({
                 <dt>ICE :</dt>
                 <dd>{invoice.customer_ice_snapshot ?? "—"}</dd>
               </div>
+              {invoice.customer_if_snapshot && (
+                <div>
+                  <dt>IF :</dt>
+                  <dd>{invoice.customer_if_snapshot}</dd>
+                </div>
+              )}
+              {invoice.customer_rc_snapshot && (
+                <div>
+                  <dt>RC :</dt>
+                  <dd>{invoice.customer_rc_snapshot}</dd>
+                </div>
+              )}
             </dl>
           </div>
         </header>

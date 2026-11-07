@@ -32,6 +32,7 @@ export type UserEnvironmentAccess = {
 };
 
 export type InvoiceStatus = "draft" | "issued" | "cancelled";
+export type CustomerPriceCategory = "intercompany" | "wholesale" | "retail" | "custom";
 
 export type Customer = {
   id: string;
@@ -42,6 +43,23 @@ export type Customer = {
   city: string | null;
   address: string | null;
   ice: string | null;
+  customer_code: string | null;
+  whatsapp: string | null;
+  if_number: string | null;
+  rc: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  postal_code: string | null;
+  country: string | null;
+  default_price_category: CustomerPriceCategory | null;
+  notes: string | null;
+  default_delivery_address: string | null;
+  delivery_city: string | null;
+  delivery_contact_name: string | null;
+  delivery_phone: string | null;
+  delivery_instructions: string | null;
+  external_customer_id: string | null;
+  created_by: string | null;
   purchase_order_default: string | null;
   is_active: boolean;
   created_at: string;
@@ -58,6 +76,8 @@ export type Invoice = {
   customer_city_snapshot: string | null;
   customer_address_snapshot: string | null;
   customer_ice_snapshot: string | null;
+  customer_if_snapshot: string | null;
+  customer_rc_snapshot: string | null;
   status: InvoiceStatus;
   currency: string;
   total: number;
@@ -105,9 +125,33 @@ export type Order = {
   customer_city_snapshot: string | null;
   customer_address_snapshot: string | null;
   customer_ice_snapshot: string | null;
+  customer_if_snapshot: string | null;
+  customer_rc_snapshot: string | null;
   created_by: string;
   confirmed_by: string | null;
   confirmed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CustomerNote = {
+  id: string;
+  customer_id: string;
+  note: string;
+  created_by: string;
+  created_at: string;
+};
+
+export type CustomerProductPrice = {
+  id: string;
+  customer_id: string;
+  product_format_id: string;
+  unit_price_ht: number;
+  currency: string;
+  is_active: boolean;
+  valid_from: string | null;
+  valid_to: string | null;
+  created_by: string;
   created_at: string;
   updated_at: string;
 };
@@ -745,12 +789,29 @@ export type Database = {
       };
       customers: {
         Row: Customer;
-        Insert: Omit<Customer, "id" | "created_at" | "updated_at"> & {
+        Insert: Pick<Customer, "company_name"> &
+          Partial<Omit<Customer, "id" | "company_name" | "created_at" | "updated_at">> & {
+            id?: string;
+            created_at?: string;
+            updated_at?: string;
+          };
+        Update: Partial<Omit<Customer, "id" | "created_at">>;
+        Relationships: [];
+      };
+      customer_notes: {
+        Row: CustomerNote;
+        Insert: Omit<CustomerNote, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<CustomerNote, "id" | "created_at">>;
+        Relationships: [];
+      };
+      customer_product_prices: {
+        Row: CustomerProductPrice;
+        Insert: Omit<CustomerProductPrice, "id" | "created_at" | "updated_at"> & {
           id?: string;
           created_at?: string;
           updated_at?: string;
         };
-        Update: Partial<Omit<Customer, "id" | "created_at">>;
+        Update: Partial<Omit<CustomerProductPrice, "id" | "created_at">>;
         Relationships: [];
       };
       invoices: {
@@ -1160,6 +1221,63 @@ export type Database = {
       current_app_role: { Args: Record<PropertyKey, never>; Returns: AppRole | null };
       has_environment_access: { Args: { environment_code: string }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      save_customer: {
+        Args: { target_customer_id: string | null; target_payload: Json };
+        Returns: Customer;
+      };
+      deactivate_customer: { Args: { target_customer_id: string }; Returns: Customer };
+      add_customer_note: {
+        Args: { target_customer_id: string; target_note: string };
+        Returns: CustomerNote;
+      };
+      list_customers: {
+        Args: {
+          target_search?: string | null;
+          target_active?: boolean | null;
+          target_city?: string | null;
+          target_price_category?: CustomerPriceCategory | null;
+          target_limit?: number;
+        };
+        Returns: Array<{
+          id: string;
+          company_name: string;
+          customer_code: string | null;
+          contact_person: string | null;
+          phone: string | null;
+          email: string | null;
+          city: string | null;
+          ice: string | null;
+          if_number: string | null;
+          rc: string | null;
+          default_price_category: CustomerPriceCategory | null;
+          is_active: boolean;
+          last_activity: string | null;
+          order_count: number;
+          invoice_count: number;
+          delivery_note_count: number;
+          transport_note_count: number;
+        }>;
+      };
+      get_customer_document_history: { Args: { target_customer_id: string }; Returns: Json };
+      get_customer_possible_duplicates: {
+        Args: {
+          target_company_name?: string | null;
+          target_ice?: string | null;
+          target_email?: string | null;
+          target_phone?: string | null;
+          target_exclude_customer_id?: string | null;
+        };
+        Returns: Array<{
+          id: string;
+          customer_code: string | null;
+          company_name: string;
+          ice: string | null;
+          email: string | null;
+          phone: string | null;
+          is_active: boolean;
+          matched_on: string[];
+        }>;
+      };
       invoice_authoritative_total: { Args: { target_invoice_id: string }; Returns: number };
       invoice_authoritative_totals: {
         Args: { target_invoice_id: string };

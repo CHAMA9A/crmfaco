@@ -47,6 +47,7 @@ export function canAccessFacolubPath(role: AppRole, pathname: string) {
     path.startsWith("/facolub/preparation/") ||
     path.startsWith("/facolub/planning/") ||
     path.startsWith("/facolub/production/") ||
+    path.startsWith("/facolub/customers/") ||
     path.startsWith("/facolub/settings/") ||
     path.startsWith("/facolub/documents/invoices/") ||
     path.startsWith("/facolub/documents/orders/");

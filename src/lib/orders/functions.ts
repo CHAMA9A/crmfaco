@@ -149,7 +149,9 @@ export const getOrderEditorDataFn = createServerFn({ method: "GET" }).handler(
     const supabase = await getManagerClient();
     const { data, error } = await supabase
       .from("customers")
-      .select("id, company_name, city, address, purchase_order_default")
+      .select(
+        "id, company_name, customer_code, city, address, delivery_city, default_delivery_address, purchase_order_default",
+      )
       .eq("is_active", true)
       .order("company_name");
     if (error) throw new Error("Unable to load customers");
@@ -164,7 +166,9 @@ export const getDraftOrderEditorFn = createServerFn({ method: "GET" })
     const [customersResult, orderResult, itemsResult] = await Promise.all([
       supabase
         .from("customers")
-        .select("id, company_name, city, address, purchase_order_default")
+        .select(
+          "id, company_name, customer_code, city, address, delivery_city, default_delivery_address, purchase_order_default",
+        )
         .eq("is_active", true)
         .order("company_name"),
       supabase

@@ -97,6 +97,19 @@ describe("FACOLUB authorization matrix", () => {
     }
   });
 
+  test("customer CRM detail and edit routes stay management-only", () => {
+    const routes = [
+      "/facolub/customers/new",
+      "/facolub/customers/customer-id",
+      "/facolub/customers/customer-id/edit",
+    ];
+    for (const route of routes) {
+      expect(canAccessFacolubPath("admin", route)).toBe(true);
+      expect(canAccessFacolubPath("management", route)).toBe(true);
+      expect(canAccessFacolubPath("factory", route)).toBe(false);
+    }
+  });
+
   test("stock history follows stock access and stock settings remain Admin-only", () => {
     expect(canAccessFacolubPath("admin", "/facolub/stock/history")).toBe(true);
     expect(canAccessFacolubPath("management", "/facolub/stock/history")).toBe(true);
