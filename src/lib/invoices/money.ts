@@ -25,15 +25,19 @@ function minorUnitsToMoney(minorUnits: bigint): string {
 
 export function calculateInvoiceTotals(
   lineTotals: ReadonlyArray<string | number>,
-  taxPercent = 20,
+  taxPercent: string | number,
 ) {
-  if (!Number.isInteger(taxPercent) || taxPercent < 0) {
-    throw new Error("Tax percentage must be a non-negative integer");
-  }
+  const rateMatch = /^(\d{1,3})(?:\.(\d{1,4}))?$/.exec(String(taxPercent).trim());
+  if (!rateMatch) throw new Error("Tax percentage must have at most four decimal places");
+  const rateWhole = rateMatch[1] ?? "0";
+  const wholeRate = Number(rateWhole);
+  if (wholeRate > 100 || (wholeRate === 100 && Number(rateMatch[2] ?? 0) > 0))
+    throw new Error("Tax percentage must be between 0 and 100");
+  const scaledRate = BigInt(rateWhole) * 10_000n + BigInt((rateMatch[2] ?? "").padEnd(4, "0"));
 
   const totalHtMinor = lineTotals.reduce((total, value) => total + moneyToMinorUnits(value), 0n);
   const unsignedHt = totalHtMinor < 0n ? -totalHtMinor : totalHtMinor;
-  const unsignedTax = (unsignedHt * BigInt(taxPercent) + 50n) / 100n;
+  const unsignedTax = (unsignedHt * scaledRate + 500_000n) / 1_000_000n;
   const taxMinor = totalHtMinor < 0n ? -unsignedTax : unsignedTax;
 
   return {
@@ -49,4 +53,10 @@ export function formatMad(value: string | number): string {
   const absolute = minorUnits < 0n ? -minorUnits : minorUnits;
   const whole = (absolute / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   return `${sign}${whole},${String(absolute % 100n).padStart(2, "0")} MAD`;
+}
+
+export function formatTaxRate(value: string | number): string {
+  return String(value)
+    .trim()
+    .replace(/(\.\d*?[1-9])0+$|\.0+$/, "$1");
 }

@@ -353,6 +353,106 @@ const french: Record<string, string> = {
   "Save supplier": "Enregistrer le fournisseur",
   "Receiving supplier directory and activation":
     "Annuaire des fournisseurs de réception et activation",
+
+  // Physical stock counts and traceable adjustments
+  "Physical counts": "Inventaires physiques",
+  Adjustments: "Ajustements",
+  "Physical stock counts": "Inventaires physiques du stock",
+  "Record physical quantities, review differences, and post traceable ledger adjustments after approval.":
+    "Saisissez les quantités physiques, contrôlez les écarts et comptabilisez des ajustements traçables après approbation.",
+  "New count": "Nouvel inventaire",
+  Counts: "Inventaires",
+  "Pending approval": "En attente d’approbation",
+  "Differences found": "Écarts constatés",
+  "Search number, location or user": "Rechercher un numéro, un emplacement ou un utilisateur",
+  "Draft count": "Inventaire brouillon",
+  differences: "écarts",
+  Net: "Net",
+  "No stock counts": "Aucun inventaire",
+  "Create your first physical count for the warehouse.":
+    "Créez le premier inventaire physique de l’entrepôt.",
+  "No stock count matches these filters.": "Aucun inventaire ne correspond à ces filtres.",
+  Approved: "Approuvé",
+  Rejected: "Rejeté",
+  Posted: "Comptabilisé",
+  "New physical stock count": "Nouvel inventaire physique",
+  "Choose the scope first. Expected quantities are snapshotted securely when the draft is created.":
+    "Choisissez d’abord le périmètre. Les quantités attendues sont figées de manière sécurisée à la création du brouillon.",
+  "Count date": "Date d’inventaire",
+  "Select a location": "Sélectionner un emplacement",
+  "Count scope": "Périmètre de l’inventaire",
+  "All active items": "Tous les articles actifs",
+  "One category": "Une catégorie",
+  "Selected items": "Articles sélectionnés",
+  "Complete warehouse count": "Inventaire complet de l’entrepôt",
+  "Count a material family": "Inventorier une famille de matières",
+  "Target specific references": "Cibler des références précises",
+  "Search stock items": "Rechercher des articles de stock",
+  "Comment (optional)": "Commentaire (facultatif)",
+  "Reason, zone, team or counting instructions": "Motif, zone, équipe ou consignes de comptage",
+  "Ready to count": "Prêt pour le comptage",
+  "active items will be snapshotted. Drafts never change stock.":
+    "articles actifs seront figés. Les brouillons ne modifient jamais le stock.",
+  "Creating…": "Création…",
+  "Create draft count": "Créer l’inventaire brouillon",
+  "Date and location are required.": "La date et l’emplacement sont requis.",
+  "Select at least one stock item.": "Sélectionnez au moins un article de stock.",
+  "Unable to create stock count": "Impossible de créer l’inventaire",
+  "Draft stock count": "Inventaire de stock brouillon",
+  "Physical snapshot, entered quantities, differences, evidence and approval trail.":
+    "Instantané physique, quantités saisies, écarts, preuves et piste d’approbation.",
+  "All counts": "Tous les inventaires",
+  "Count lines": "Lignes d’inventaire",
+  "Expected physical": "Physique attendu",
+  "Counted physical": "Physique compté",
+  Difference: "Écart",
+  Snapshot: "Instantané",
+  "Line note (optional)": "Note de ligne (facultative)",
+  Evidence: "Preuve",
+  "No evidence attached. Photos and PDFs are optional.":
+    "Aucune preuve jointe. Les photos et PDF sont facultatifs.",
+  "Add photo or PDF": "Ajouter une photo ou un PDF",
+  "Count details": "Détails de l’inventaire",
+  "Complete every physical quantity, then submit for approval.":
+    "Complétez chaque quantité physique, puis soumettez l’inventaire pour approbation.",
+  "Save quantities": "Enregistrer les quantités",
+  "Submit for approval": "Soumettre pour approbation",
+  "Management review": "Contrôle de la gestion",
+  "differences will create immutable movements. A stale snapshot is rejected automatically.":
+    "écarts créeront des mouvements immuables. Un instantané obsolète est automatiquement refusé.",
+  "Approve and post": "Approuver et comptabiliser",
+  "Rejection reason": "Motif du rejet",
+  "Reject count": "Rejeter l’inventaire",
+  "Counted quantities saved.": "Quantités comptées enregistrées.",
+  "Approve this count and post all differences to stock?":
+    "Approuver cet inventaire et comptabiliser tous les écarts de stock ?",
+  "Cancel this draft count?": "Annuler cet inventaire brouillon ?",
+  "Stock adjustments": "Ajustements de stock",
+  "Report losses, damage and corrections. Every request requires approval before an immutable stock movement is posted.":
+    "Déclarez les pertes, dommages et corrections. Chaque demande doit être approuvée avant la comptabilisation d’un mouvement immuable.",
+  "New request": "Nouvelle demande",
+  "Other signed adjustment": "Autre ajustement signé",
+  "Reverse a movement": "Contrepasser un mouvement",
+  "Original movement ID": "Identifiant du mouvement d’origine",
+  "Signed quantity (+ / −)": "Quantité signée (+ / −)",
+  "Describe what happened and why stock must change":
+    "Décrivez l’événement et la raison de la modification du stock",
+  "Submit request": "Soumettre la demande",
+  "Adjustment request created for Management approval.":
+    "Demande d’ajustement créée pour approbation par la gestion.",
+  "Search item, requester or reason": "Rechercher un article, un demandeur ou un motif",
+  "Count difference": "Écart d’inventaire",
+  "Other adjustment": "Autre ajustement",
+  "Posted to immutable ledger": "Comptabilisé dans le registre immuable",
+  "Approve and post this adjustment to the immutable stock ledger?":
+    "Approuver et comptabiliser cet ajustement dans le registre de stock immuable ?",
+  "Adjustment posted.": "Ajustement comptabilisé.",
+  "Adjustment rejected.": "Ajustement rejeté.",
+  "Adjustment posted. Warning: reserved stock now exceeds physical stock.":
+    "Ajustement comptabilisé. Attention : le stock réservé dépasse désormais le stock physique.",
+  "Use a JPG, PNG, WebP or PDF file.": "Utilisez un fichier JPG, PNG, WebP ou PDF.",
+  "Evidence must be 10 MB or smaller.": "La preuve doit peser au maximum 10 Mo.",
+  "Evidence attached.": "Preuve jointe.",
 };
 
 export function translate(language: AppLanguage, source: string) {

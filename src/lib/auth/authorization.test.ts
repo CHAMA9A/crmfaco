@@ -107,6 +107,20 @@ describe("FACOLUB authorization matrix", () => {
     expect(canAccessFacolubPath("factory", "/facolub/settings/stock-items")).toBe(false);
   });
 
+  test("physical counts and adjustment requests are operational for every FACOLUB role", () => {
+    const routes = [
+      "/facolub/stock/counts",
+      "/facolub/stock/counts/new",
+      "/facolub/stock/counts/5a8f8b25-7925-4cf3-a31f-62e682280e09",
+      "/facolub/stock/adjustments",
+    ];
+    for (const route of routes) {
+      expect(canAccessFacolubPath("admin", route)).toBe(true);
+      expect(canAccessFacolubPath("management", route)).toBe(true);
+      expect(canAccessFacolubPath("factory", route)).toBe(true);
+    }
+  });
+
   test("receiving workflow routes are available to every FACOLUB role", () => {
     const routes = [
       "/facolub/receiving/new",

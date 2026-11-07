@@ -61,6 +61,10 @@ export type Invoice = {
   status: InvoiceStatus;
   currency: string;
   total: number;
+  subtotal_ht: number;
+  tax_rate: number | null;
+  tax_total: number;
+  total_ttc: number;
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -81,6 +85,7 @@ export type InvoiceItem = {
   position: number;
   created_at: string;
   order_item_id: string | null;
+  product_format_id: string | null;
 };
 
 export type OrderStatus = "draft" | "confirmed" | "documents_ready" | "completed" | "cancelled";
@@ -183,6 +188,8 @@ export type StockMovementType =
   | "other";
 export type StockReservationStatus = "active" | "released" | "consumed" | "cancelled";
 export type StockAdjustmentStatus = "draft" | "pending" | "approved" | "rejected" | "posted";
+export type StockCountStatus = "draft" | "submitted" | "approved" | "rejected" | "cancelled";
+export type StockAdjustmentType = "count_difference" | "loss" | "damage" | "correction" | "other";
 
 export type StockItem = {
   id: string;
@@ -261,6 +268,72 @@ export type StockAdjustment = {
   approved_at: string | null;
   created_at: string;
   updated_at: string;
+  stock_count_id: string | null;
+  stock_count_item_id: string | null;
+  adjustment_type: StockAdjustmentType;
+  original_movement_id: string | null;
+  stock_movement_id: string | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
+};
+
+export type StockCount = {
+  id: string;
+  count_number: string | null;
+  location_id: string;
+  count_date: string;
+  status: StockCountStatus;
+  comment: string | null;
+  created_by: string;
+  submitted_by: string | null;
+  submitted_at: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockCountItem = {
+  id: string;
+  stock_count_id: string;
+  stock_item_id: string;
+  location_id: string;
+  expected_physical_quantity: number;
+  counted_quantity: number | null;
+  difference_quantity: number | null;
+  snapshot_at: string;
+  snapshot_movement_count: number;
+  comment: string | null;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StockCountAttachment = {
+  id: string;
+  stock_count_id: string;
+  stock_count_item_id: string | null;
+  storage_path: string;
+  file_name: string;
+  mime_type: string;
+  file_size: number | null;
+  uploaded_by: string;
+  created_at: string;
+};
+
+export type StockAdjustmentAttachment = {
+  id: string;
+  stock_adjustment_id: string;
+  storage_path: string;
+  file_name: string;
+  mime_type: string;
+  file_size: number | null;
+  uploaded_by: string;
+  created_at: string;
 };
 
 export type StockMovementResult = {
@@ -374,6 +447,7 @@ export type PlanningProduct = {
   id: string;
   code: string | null;
   name: string;
+  product_range_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -391,7 +465,46 @@ export type ProductFormat = {
   id: string;
   product_id: string;
   format_id: string;
+  sku: string | null;
+  official_catalog_number: number | null;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductRange = {
+  id: string;
+  code: string;
+  name: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type ProductPackagingRule = {
+  id: string;
+  product_range_id: string | null;
+  product_id: string | null;
+  format_id: string;
+  carton_stock_item_id: string | null;
+  seal_stock_item_id: string;
+  bottles_per_carton: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type StockAutoReceiptRule = {
+  id: string;
+  source_stock_item_id: string;
+  generated_stock_item_id: string;
+  ratio: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+export type InvoiceTaxSettings = {
+  singleton: boolean;
+  default_tax_rate: number | null;
+  updated_by: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -646,6 +759,9 @@ export type Database = {
           Invoice,
           | "id"
           | "total"
+          | "subtotal_ht"
+          | "tax_total"
+          | "total_ttc"
           | "created_at"
           | "updated_at"
           | "order_id"
@@ -654,6 +770,9 @@ export type Database = {
         > & {
           id?: string;
           total?: number;
+          subtotal_ht?: number;
+          tax_total?: number;
+          total_ttc?: number;
           created_at?: string;
           updated_at?: string;
           order_id?: string | null;
@@ -711,10 +830,14 @@ export type Database = {
       };
       invoice_items: {
         Row: InvoiceItem;
-        Insert: Omit<InvoiceItem, "id" | "line_total" | "created_at" | "order_item_id"> & {
+        Insert: Omit<
+          InvoiceItem,
+          "id" | "line_total" | "created_at" | "order_item_id" | "product_format_id"
+        > & {
           id?: string;
           created_at?: string;
           order_item_id?: string | null;
+          product_format_id?: string | null;
         };
         Update: Partial<Omit<InvoiceItem, "id" | "line_total" | "created_at">>;
         Relationships: [];
@@ -777,6 +900,50 @@ export type Database = {
           "id" | "difference_quantity" | "created_at" | "updated_at"
         > & { id?: string; created_at?: string; updated_at?: string };
         Update: Partial<Omit<StockAdjustment, "id" | "difference_quantity" | "created_at">>;
+        Relationships: [];
+      };
+      stock_counts: {
+        Row: StockCount;
+        Insert: Omit<StockCount, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StockCount, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_count_items: {
+        Row: StockCountItem;
+        Insert: Omit<StockCountItem, "id" | "difference_quantity" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StockCountItem, "id" | "difference_quantity" | "created_at">>;
+        Relationships: [];
+      };
+      stock_count_attachments: {
+        Row: StockCountAttachment;
+        Insert: Omit<StockCountAttachment, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<StockCountAttachment, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_adjustment_attachments: {
+        Row: StockAdjustmentAttachment;
+        Insert: Omit<StockAdjustmentAttachment, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<StockAdjustmentAttachment, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_count_number_sequences: {
+        Row: { count_date: string; last_value: number };
+        Insert: { count_date: string; last_value: number };
+        Update: { last_value?: number };
         Relationships: [];
       };
       suppliers: {
@@ -886,6 +1053,12 @@ export type Database = {
         Update: Partial<Omit<PlanningProduct, "id" | "created_at">>;
         Relationships: [];
       };
+      product_ranges: {
+        Row: ProductRange;
+        Insert: Omit<ProductRange, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductRange, "id" | "created_at">>;
+        Relationships: [];
+      };
       packaging_formats: {
         Row: PackagingFormat;
         Insert: Omit<PackagingFormat, "id" | "created_at" | "updated_at"> & { id?: string };
@@ -902,6 +1075,24 @@ export type Database = {
         Row: PackagingRule;
         Insert: Omit<PackagingRule, "id" | "created_at" | "updated_at"> & { id?: string };
         Update: Partial<Omit<PackagingRule, "id" | "created_at">>;
+        Relationships: [];
+      };
+      product_packaging_rules: {
+        Row: ProductPackagingRule;
+        Insert: Omit<ProductPackagingRule, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<ProductPackagingRule, "id" | "created_at">>;
+        Relationships: [];
+      };
+      stock_auto_receipt_rules: {
+        Row: StockAutoReceiptRule;
+        Insert: Omit<StockAutoReceiptRule, "id" | "created_at" | "updated_at"> & { id?: string };
+        Update: Partial<Omit<StockAutoReceiptRule, "id" | "created_at">>;
+        Relationships: [];
+      };
+      invoice_tax_settings: {
+        Row: InvoiceTaxSettings;
+        Insert: Omit<InvoiceTaxSettings, "created_at" | "updated_at">;
+        Update: Partial<Omit<InvoiceTaxSettings, "singleton" | "created_at">>;
         Relationships: [];
       };
       production_plans: {
@@ -970,6 +1161,29 @@ export type Database = {
       has_environment_access: { Args: { environment_code: string }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       invoice_authoritative_total: { Args: { target_invoice_id: string }; Returns: number };
+      invoice_authoritative_totals: {
+        Args: { target_invoice_id: string };
+        Returns: Array<{
+          subtotal_ht: number;
+          tax_rate: number | null;
+          tax_total: number;
+          total_ttc: number;
+        }>;
+      };
+      configure_default_invoice_tax_rate: {
+        Args: { target_tax_rate: number };
+        Returns: InvoiceTaxSettings;
+      };
+      resolve_product_packaging_rule: {
+        Args: { target_product_format_id: string };
+        Returns: Array<{
+          rule_id: string;
+          carton_stock_item_id: string | null;
+          seal_stock_item_id: string;
+          bottles_per_carton: number | null;
+          scope: string;
+        }>;
+      };
       create_invoice_draft: {
         Args: {
           target_customer_id: string;
@@ -1110,6 +1324,125 @@ export type Database = {
           target_is_active: boolean;
         };
         Returns: StockItem;
+      };
+      create_stock_count_draft: {
+        Args: {
+          target_location_id?: string | null;
+          target_count_date?: string;
+          target_comment?: string | null;
+        };
+        Returns: StockCount;
+      };
+      add_stock_count_item: {
+        Args: {
+          target_count_id: string;
+          target_stock_item_id: string;
+          target_position?: number | null;
+        };
+        Returns: StockCountItem;
+      };
+      update_counted_quantity: {
+        Args: {
+          target_count_item_id: string;
+          target_counted_quantity: number;
+          target_comment?: string | null;
+        };
+        Returns: StockCountItem;
+      };
+      initialize_stock_count: {
+        Args: {
+          target_count_id: string;
+          target_category?: StockItemCategory | null;
+          target_stock_item_ids?: string[] | null;
+        };
+        Returns: Json;
+      };
+      submit_stock_count: { Args: { target_count_id: string }; Returns: Json };
+      approve_stock_count: { Args: { target_count_id: string }; Returns: Json };
+      reject_stock_count: {
+        Args: { target_count_id: string; target_reason: string };
+        Returns: Json;
+      };
+      cancel_stock_count: { Args: { target_count_id: string }; Returns: StockCount };
+      report_stock_loss: {
+        Args: {
+          target_stock_item_id: string;
+          target_location_id: string;
+          target_quantity: number;
+          target_reason: string;
+        };
+        Returns: StockAdjustment;
+      };
+      report_stock_damage: {
+        Args: {
+          target_stock_item_id: string;
+          target_location_id: string;
+          target_quantity: number;
+          target_reason: string;
+        };
+        Returns: StockAdjustment;
+      };
+      request_other_stock_adjustment: {
+        Args: {
+          target_stock_item_id: string;
+          target_location_id: string;
+          target_signed_quantity: number;
+          target_reason: string;
+        };
+        Returns: StockAdjustment;
+      };
+      request_stock_correction: {
+        Args: { target_movement_id: string; target_quantity: number; target_reason: string };
+        Returns: StockAdjustment;
+      };
+      approve_stock_adjustment: { Args: { target_adjustment_id: string }; Returns: Json };
+      reject_stock_adjustment: {
+        Args: { target_adjustment_id: string; target_reason: string };
+        Returns: StockAdjustment;
+      };
+      attach_stock_count_evidence: {
+        Args: {
+          target_count_id: string;
+          target_count_item_id: string | null;
+          target_storage_path: string;
+          target_file_name: string;
+          target_mime_type: string;
+          target_file_size?: number | null;
+        };
+        Returns: StockCountAttachment;
+      };
+      attach_stock_adjustment_evidence: {
+        Args: {
+          target_adjustment_id: string;
+          target_storage_path: string;
+          target_file_name: string;
+          target_mime_type: string;
+          target_file_size?: number | null;
+        };
+        Returns: StockAdjustmentAttachment;
+      };
+      get_stock_count: { Args: { target_count_id: string }; Returns: Json };
+      list_stock_counts: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_status?: StockCountStatus | null;
+          target_location_id?: string | null;
+          target_created_by?: string | null;
+          target_limit?: number;
+        };
+        Returns: Json[];
+      };
+      list_stock_adjustments: {
+        Args: {
+          target_date_from?: string | null;
+          target_date_to?: string | null;
+          target_status?: StockAdjustmentStatus | null;
+          target_type?: StockAdjustmentType | null;
+          target_requested_by?: string | null;
+          target_limit?: number;
+        };
+        Returns: Json[];
       };
       save_supplier: {
         Args: {
@@ -1445,6 +1778,8 @@ export type Database = {
       stock_movement_type: StockMovementType;
       stock_reservation_status: StockReservationStatus;
       stock_adjustment_status: StockAdjustmentStatus;
+      stock_count_status: StockCountStatus;
+      stock_adjustment_type: StockAdjustmentType;
       receipt_status: ReceiptStatus;
       preparation_status: PreparationStatus;
       production_plan_status: ProductionPlanStatus;

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { PDFDocument } from "pdf-lib";
 
-import { createInvoicePdfBlob, invoicePdfFilename } from "./pdf";
+import { createInvoicePdfBlob, invoicePdfFilename, invoicePdfTotalRows } from "./pdf";
 import type { InvoiceDocument } from "./types";
 
 const testInvoice: InvoiceDocument = {
@@ -16,7 +16,11 @@ const testInvoice: InvoiceDocument = {
   customer_ice_snapshot: "TEST-ICE-NOT-FISCAL",
   status: "issued",
   currency: "MAD",
-  authoritative_total: "10500.00",
+  subtotal_ht: "10500.00",
+  tax_rate: "20.0000",
+  tax_total: "2100.00",
+  total_ttc: "12600.00",
+  authoritative_total: "12600.00",
   prices_confirmed_at: null,
   items: [
     {
@@ -43,6 +47,20 @@ const testInvoice: InvoiceDocument = {
 describe("invoice PDF", () => {
   test("uses the official invoice number as the filename", () => {
     expect(invoicePdfFilename(testInvoice)).toBe("FAC-2026-000001.pdf");
+  });
+
+  test("renders database-authoritative HT, TVA and TTC values", () => {
+    expect(invoicePdfTotalRows(testInvoice)).toEqual([
+      ["TOTAL HT", "10 500,00 MAD"],
+      ["TVA 20 %", "2 100,00 MAD"],
+      ["TOTAL TTC", "12 600,00 MAD"],
+    ]);
+  });
+
+  test("does not invent TVA semantics for a preserved legacy invoice", () => {
+    expect(invoicePdfTotalRows({ ...testInvoice, tax_rate: null })).toEqual([
+      ["TOTAL HISTORIQUE", "12 600,00 MAD"],
+    ]);
   });
 
   test("generates a valid one-page A4 PDF", async () => {

@@ -22,6 +22,10 @@ export type InvoiceDocument = {
   customer_ice_snapshot: string | null;
   status: InvoiceStatus;
   currency: string;
+  subtotal_ht: string;
+  tax_rate: string | null;
+  tax_total: string;
+  total_ttc: string;
   authoritative_total: string;
   prices_confirmed_at: string | null;
   items: InvoiceItem[];
@@ -44,6 +48,7 @@ export type InvoiceWorkspaceRow = {
   purchase_order: string | null;
   status: InvoiceStatus;
   total: number;
+  total_ttc: number;
   created_at: string;
 };
 
@@ -51,4 +56,5 @@ export type InvoiceWorkspaceData = {
   customers: InvoiceWorkspaceCustomer[];
   invoices: InvoiceWorkspaceRow[];
   today: string;
+  defaultTaxRate: number | null;
 };

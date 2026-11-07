@@ -2,7 +2,7 @@ import { ArrowLeft, Download, Eye, Printer } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { formatMad } from "@/lib/invoices/money";
+import { formatMad, formatTaxRate } from "@/lib/invoices/money";
 import {
   downloadInvoicePdf,
   previewInvoicePdf,
@@ -170,8 +170,8 @@ export function InvoiceDocument({
             <tr>
               <th>DESCRIPTION</th>
               <th>QTÉ</th>
-              <th>PRIX Unitaire</th>
-              <th>TOTAL</th>
+              <th>PRIX Unitaire HT</th>
+              <th>TOTAL HT</th>
             </tr>
           </thead>
           <tbody>
@@ -187,10 +187,27 @@ export function InvoiceDocument({
         </table>
 
         <dl className="soma-final-totals" aria-label="Total de la facture">
-          <div className="soma-total-ttc">
-            <dt>TOTAL</dt>
-            <dd>{formatMad(invoice.authoritative_total)}</dd>
-          </div>
+          {invoice.tax_rate === null ? (
+            <div className="soma-total-ttc">
+              <dt>{invoice.status === "issued" ? "TOTAL HISTORIQUE" : "SOUS-TOTAL HT"}</dt>
+              <dd>{formatMad(invoice.total_ttc)}</dd>
+            </div>
+          ) : (
+            <>
+              <div>
+                <dt>TOTAL HT</dt>
+                <dd>{formatMad(invoice.subtotal_ht)}</dd>
+              </div>
+              <div>
+                <dt>TVA {formatTaxRate(invoice.tax_rate)} %</dt>
+                <dd>{formatMad(invoice.tax_total)}</dd>
+              </div>
+              <div className="soma-total-ttc">
+                <dt>TOTAL TTC</dt>
+                <dd>{formatMad(invoice.total_ttc)}</dd>
+              </div>
+            </>
+          )}
         </dl>
 
         <footer className="soma-invoice-footer">

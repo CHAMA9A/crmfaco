@@ -119,7 +119,10 @@ async function listReceipts(
     target_limit: filters.limit,
   });
   if (error) throw new Error(error.message || "Unable to load receipts");
-  return (data ?? []) as ReceiptListRow[];
+  return ((data ?? []) as ReceiptListRow[]).filter(
+    (receipt) =>
+      !receipt.reference?.startsWith("DEMO-") && !receipt.supplier_name?.startsWith("[DEMO]"),
+  );
 }
 
 async function loadReceiptDetail(

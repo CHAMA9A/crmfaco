@@ -152,7 +152,7 @@ export const getStockHistoryFn = createServerFn({ method: "GET" })
       target_limit: data.limit,
     });
     if (error) throw new Error(error.message || "Unable to load stock movement history");
-    return { rows: rows ?? [] };
+    return { rows: (rows ?? []).filter((row) => !row.stock_item_name.startsWith("[DEMO]")) };
   });
 
 export const getStockItemsForAdminFn = createServerFn({ method: "GET" }).handler(
@@ -160,7 +160,11 @@ export const getStockItemsForAdminFn = createServerFn({ method: "GET" }).handler
     const supabase = await getStockClient(["admin"]);
     const { data, error } = await supabase.from("stock_items").select("*").order("name");
     if (error) throw new Error("Unable to load stock items");
-    return { items: data ?? [] };
+    return {
+      items: (data ?? []).filter(
+        (item) => !item.code?.startsWith("DEMO-") && !item.name.startsWith("[DEMO]"),
+      ),
+    };
   },
 );
 

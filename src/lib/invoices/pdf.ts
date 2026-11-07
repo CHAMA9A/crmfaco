@@ -1,6 +1,6 @@
 import type { PDFFont, PDFImage, PDFPage } from "pdf-lib";
 
-import { formatMad } from "./money";
+import { formatMad, formatTaxRate } from "./money";
 import type { InvoiceDocument } from "./types";
 
 type PreviewWindow = Window | null;
@@ -429,7 +429,8 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     y -= rowHeight;
   }
 
-  const totalsHeight = 34;
+  const totalRows = invoicePdfTotalRows(invoice);
+  const totalsHeight = totalRows.length === 1 ? 34 : 76;
   if (y - totalsHeight < 90) {
     page = pdfDocument.addPage([A4_WIDTH, A4_HEIGHT]);
     pages.push(page);
@@ -447,11 +448,10 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     borderWidth: 0.8,
     borderColor: rgb(0.3, 0.3, 0.3),
   });
-  const totalRows = [["TOTAL", formatMad(invoice.authoritative_total)]] as const;
   totalRows.forEach(([label, value], index) => {
     const baseline = y - 17 - index * 21;
-    const selectedFont = bold;
-    const size = 9.5;
+    const selectedFont = index === totalRows.length - 1 ? bold : font;
+    const size = index === totalRows.length - 1 ? 10 : 8.5;
     page.drawText(label, { x: totalX + 13, y: baseline, size, font: selectedFont });
     drawRightText(page, value, totalX + totalWidth - 13, baseline, selectedFont, size);
   });
@@ -473,6 +473,22 @@ export async function createInvoicePdfBlob(invoice: InvoiceDocument) {
     bytes.byteOffset + bytes.byteLength,
   ) as ArrayBuffer;
   return new Blob([buffer], { type: "application/pdf" });
+}
+
+export function invoicePdfTotalRows(invoice: InvoiceDocument): Array<readonly [string, string]> {
+  if (invoice.tax_rate === null) {
+    return [
+      [
+        invoice.status === "issued" ? "TOTAL HISTORIQUE" : "SOUS-TOTAL HT",
+        formatMad(invoice.total_ttc),
+      ],
+    ];
+  }
+  return [
+    ["TOTAL HT", formatMad(invoice.subtotal_ht)],
+    [`TVA ${formatTaxRate(invoice.tax_rate)} %`, formatMad(invoice.tax_total)],
+    ["TOTAL TTC", formatMad(invoice.total_ttc)],
+  ];
 }
 
 export function invoicePdfFilename(invoice: InvoiceDocument) {

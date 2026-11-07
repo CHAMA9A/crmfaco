@@ -56,6 +56,16 @@ Run these files in the Supabase SQL Editor, one at a time, and review each resul
 52. `082_stock_count_functions.sql` (count lifecycle, stale detection, atomic approval, and adjustment RPCs)
 53. `083_stock_count_rls.sql` (role-scoped reads, RPC-only writes, and private evidence Storage)
 54. `084_stock_count_verification.sql` (rollback-only count, adjustment, reservation, stale, and correction tests)
+55. `090_facolub_product_catalog_foundation.sql` (normalized range, SKU, and legacy-safe catalog links)
+56. `091_facolub_product_catalog_seed.sql` (idempotent official 41-SKU catalog seed with conflict checks)
+57. `092_facolub_product_stock_link.sql` (finished-product stock references; no quantities or movements)
+58. `093_facolub_product_catalog_verification.sql` (read-only exact mapping, uniqueness, linkage, and balance audit)
+59. `094_stock_packaging_seal_rules.sql` (range/product-aware carton and seal configuration; zero opening stock)
+60. `095_auto_receipt_companion_rules.sql` (atomic Empty Bottle 25L to Seal 25L receipt companion)
+61. `096_recipe_rule_updates.sql` (prospective versioned recipe packaging updates and missing-mapping audit)
+62. `097_invoice_ttc_foundation.sql` (explicit HT/TVA/TTC snapshot fields and nullable default tax configuration)
+63. `098_invoice_ttc_functions.sql` (database-authoritative invoice totals and Admin tax-rate configuration)
+64. `099_demo_cleanup_verification.sql` (safe demo deactivation plus catalog, packaging, receiving, and TTC audit)
 
 Files 001-004 and 006 contain production schema/security only. Test data is never mixed into them.
 
@@ -125,3 +135,17 @@ preserves active reservations, and explicitly reports any over-reserved shortage
 creates the private `facolub-stock-evidence` bucket with a 10 MiB limit. File 084 is rollback-only,
 requires one active FACOLUB user for every role, and leaves no counts, adjustments, movements,
 reservations, evidence metadata, or numbering increments.
+
+Files 090-092 are the official FACOLUB 2026 catalog installation and must be run in order after
+the existing planning catalog and stock engine. They reuse compatible product/format/stock rows,
+stop on identity conflicts, preserve document snapshots and all ledger history, and never create
+opening balances or stock movements. File 093 is read-only and expects exactly 41 official SKUs,
+9 ranges, 41 finished-product stock links, and no duplicate SKU.
+
+Files 094-099 are the additive post-catalog business-rule patch. File 094 adds configurable
+carton/seal resolution without stock quantities. File 095 keeps 25L bottle/seal receipt movements
+in one idempotent confirmation transaction. File 096 versions only recipes whose bulk and prepared
+bottle mappings already exist, and reports missing mappings instead of guessing. Files 097-098
+introduce explicit authoritative HT/TVA/TTC semantics; the default TVA rate is deliberately null
+until confirmed and configured by an Admin. File 099 deactivates only explicit DEMO/TEST fixtures,
+preserves confirmed history, and audits the installed rules and official 41-SKU catalog.

@@ -14,7 +14,7 @@ import {
   getInvoiceDocumentFn,
   issueInvoiceFn,
 } from "@/lib/invoices/functions";
-import { formatMad } from "@/lib/invoices/money";
+import { calculateInvoiceTotals, formatMad, formatTaxRate } from "@/lib/invoices/money";
 import {
   downloadInvoicePdf,
   previewInvoicePdf,
@@ -84,6 +84,10 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
       ? sum + quantity * unitPrice
       : sum;
   }, 0);
+  const indicativeTotals =
+    data.defaultTaxRate === null
+      ? null
+      : calculateInvoiceTotals([indicativeTotal.toFixed(2)], data.defaultTaxRate);
 
   const selectCustomer = (id: string) => {
     setCustomerId(id);
@@ -337,7 +341,7 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor={`line-price-${line.id}`}>Prix unitaire MAD</Label>
+                      <Label htmlFor={`line-price-${line.id}`}>Prix unitaire HT (MAD)</Label>
                       <Input
                         id={`line-price-${line.id}`}
                         type="number"
@@ -365,8 +369,25 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
 
             <div className="flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs font-bold uppercase text-muted-foreground">Total indicatif</p>
-                <p className="mt-1 text-xl font-black">{formatMad(indicativeTotal.toFixed(2))}</p>
+                <p className="text-xs font-bold uppercase text-muted-foreground">Sous-total HT</p>
+                <p className="mt-1 font-bold">
+                  {formatMad(indicativeTotals?.totalHt ?? indicativeTotal.toFixed(2))}
+                </p>
+                {indicativeTotals ? (
+                  <>
+                    <p className="mt-1 text-sm">
+                      TVA {formatTaxRate(data.defaultTaxRate ?? 0)}% :{" "}
+                      {formatMad(indicativeTotals.tax)}
+                    </p>
+                    <p className="mt-1 text-xl font-black">
+                      TOTAL TTC {formatMad(indicativeTotals.totalTtc)}
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-sm font-semibold text-warning">
+                    Taux de TVA par défaut en attente de confirmation client.
+                  </p>
+                )}
                 <p className="mt-1 text-xs text-muted-foreground">
                   Le total officiel sera recalculé par la base après enregistrement.
                 </p>
@@ -440,8 +461,10 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
           </details>
 
           <div className="border-l-4 border-info bg-info-soft p-4 text-sm text-info">
-            <p className="font-bold">Règle commerciale actuelle</p>
-            <p className="mt-1 leading-6">Un seul montant commercial final est utilisé : TOTAL.</p>
+            <p className="font-bold">Règle commerciale</p>
+            <p className="mt-1 leading-6">
+              Les prix unitaires sont saisis HT. La base calcule la TVA configurée et le total TTC.
+            </p>
           </div>
         </aside>
       </div>
@@ -464,7 +487,7 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Client</th>
                 <th className="px-4 py-3">PO</th>
-                <th className="px-4 py-3 text-right">Total</th>
+                <th className="px-4 py-3 text-right">Total TTC</th>
                 <th className="px-4 py-3">Statut</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
@@ -478,7 +501,7 @@ export function InvoiceWorkspace({ data }: { data: InvoiceWorkspaceData }) {
                   <td className="px-4 py-4 text-muted-foreground">
                     {invoice.purchase_order || "—"}
                   </td>
-                  <td className="px-4 py-4 text-right font-bold">{formatMad(invoice.total)}</td>
+                  <td className="px-4 py-4 text-right font-bold">{formatMad(invoice.total_ttc)}</td>
                   <td className="px-4 py-4">
                     <InvoiceStatusBadge status={invoice.status} />
                   </td>

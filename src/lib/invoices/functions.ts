@@ -55,23 +55,34 @@ async function getInvoiceManagerClient() {
 export const getInvoiceWorkspaceFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<InvoiceWorkspaceData> => {
     const supabase = await getInvoiceManagerClient();
-    const [{ data: customers, error: customerError }, { data: invoices, error: invoiceError }] =
-      await Promise.all([
-        supabase
-          .from("customers")
-          .select("id, company_name, city, address, ice, purchase_order_default")
-          .eq("is_active", true)
-          .order("company_name"),
-        supabase
-          .from("invoices")
-          .select(
-            "id, invoice_number, invoice_date, customer_name_snapshot, purchase_order, status, total, created_at",
-          )
-          .order("created_at", { ascending: false })
-          .limit(50),
-      ]);
+    const [
+      { data: customers, error: customerError },
+      { data: invoices, error: invoiceError },
+      { data: taxSettings, error: taxSettingsError },
+    ] = await Promise.all([
+      supabase
+        .from("customers")
+        .select("id, company_name, city, address, ice, purchase_order_default")
+        .eq("is_active", true)
+        .not("company_name", "like", "[TEST]%")
+        .order("company_name"),
+      supabase
+        .from("invoices")
+        .select(
+          "id, invoice_number, invoice_date, customer_name_snapshot, purchase_order, status, total, total_ttc, created_at",
+        )
+        .not("purchase_order", "like", "TEST-%")
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("invoice_tax_settings")
+        .select("default_tax_rate")
+        .eq("singleton", true)
+        .maybeSingle(),
+    ]);
 
-    if (customerError || invoiceError) throw new Error("Unable to load invoices");
+    if (customerError || invoiceError || taxSettingsError)
+      throw new Error("Unable to load invoices");
     return {
       customers: customers ?? [],
       invoices: (invoices ?? []).map((invoice) => ({
@@ -79,6 +90,7 @@ export const getInvoiceWorkspaceFn = createServerFn({ method: "GET" }).handler(
         status: invoice.status as InvoiceStatus,
       })),
       today: new Date().toISOString().slice(0, 10),
+      defaultTaxRate: taxSettings?.default_tax_rate ?? null,
     };
   },
 );
@@ -151,7 +163,7 @@ export const getInvoiceDocumentFn = createServerFn({ method: "GET" })
       supabase
         .from("invoices")
         .select(
-          "id, order_id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, status, currency, prices_confirmed_at",
+          "id, order_id, invoice_number, invoice_date, purchase_order, customer_name_snapshot, customer_city_snapshot, customer_address_snapshot, customer_ice_snapshot, status, currency, subtotal_ht, tax_rate, tax_total, total_ttc, prices_confirmed_at",
         )
         .eq("id", data.invoiceId)
         .single(),
@@ -169,7 +181,11 @@ export const getInvoiceDocumentFn = createServerFn({ method: "GET" })
     return {
       ...invoice,
       status: invoice.status as InvoiceStatus,
-      authoritative_total: String(total ?? 0),
+      subtotal_ht: String(invoice.subtotal_ht),
+      tax_rate: invoice.tax_rate === null ? null : String(invoice.tax_rate),
+      tax_total: String(invoice.tax_total),
+      total_ttc: String(invoice.total_ttc),
+      authoritative_total: String(total ?? invoice.total_ttc),
       items: (items ?? []).map((item) => ({
         ...item,
         quantity: String(item.quantity),

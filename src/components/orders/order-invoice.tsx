@@ -61,7 +61,7 @@ export function OrderInvoice({
           <h2 className="font-black">Prix de la facture</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Descriptions et quantités proviennent de la commande. Confirmez uniquement les prix
-            unitaires.
+            unitaires HT. La TVA et le total TTC sont calculés par la base.
           </p>
           <div className="mt-4 space-y-3">
             {invoice.items.map((item) => (
@@ -72,7 +72,7 @@ export function OrderInvoice({
                 <div className="font-semibold">{item.description}</div>
                 <div className="text-sm">Qté {item.quantity}</div>
                 <Input
-                  aria-label={`Prix ${item.description}`}
+                  aria-label={`Prix HT ${item.description}`}
                   type="number"
                   min="0"
                   step="0.01"

@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { AlertTriangle, Boxes, History, MapPin, Settings2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Boxes,
+  ClipboardCheck,
+  History,
+  MapPin,
+  Settings2,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState, PageHeader } from "@/components/app/facolub-ui";
@@ -160,6 +168,16 @@ export function StockOverview({ data }: { data: StockOverviewData }) {
           description="Physical stock from confirmed movements, active reservations, and available quantity."
         />
         <div className="flex flex-wrap gap-2">
+          <Button asChild>
+            <Link to="/facolub/stock/counts">
+              <ClipboardCheck /> {t("Physical counts")}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/facolub/stock/adjustments">
+              <SlidersHorizontal /> {t("Adjustments")}
+            </Link>
+          </Button>
           <Button asChild variant="outline">
             <Link to="/facolub/stock/history">
               <History /> {t("Movement history")}
