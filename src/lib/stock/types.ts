@@ -20,7 +20,12 @@ export const stockCategories = [
   "other",
 ] as const satisfies readonly StockItemCategory[];
 
-export const stockUnits = ["piece", "liter", "kilogram"] as const satisfies readonly StockUnit[];
+export const stockUnits = [
+  "piece",
+  "liter",
+  "kilogram",
+  "tonne",
+] as const satisfies readonly StockUnit[];
 
 export const stockMovementTypes = [
   "opening_balance",
@@ -45,7 +50,7 @@ export const stockCategoryLabels: Record<StockItemCategory, string> = {
   prepared_bottle: "Prepared Bottles",
   seal: "Seals",
   carton: "Cartons",
-  bulk_lubricant: "Bulk Lubricant",
+  bulk_lubricant: "Bulk Lubricants",
   finished_product: "Finished Products",
   other: "Other",
 };
@@ -54,6 +59,7 @@ export const stockUnitLabels: Record<StockUnit, string> = {
   piece: "pieces",
   liter: "liters",
   kilogram: "kilograms",
+  tonne: "T",
 };
 
 export const stockMovementLabels: Record<StockMovementType, string> = {
@@ -81,6 +87,11 @@ export type StockOverviewRow = StockItem & {
   physical_quantity: number;
   reserved_quantity: number;
   available_quantity: number;
+  display_product: string | null;
+  display_format: string | null;
+  display_sku: string | null;
+  display_oil: string | null;
+  used_by_products: string[];
 };
 
 export type StockOverviewData = {

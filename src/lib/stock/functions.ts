@@ -104,12 +104,13 @@ async function getStockClient(roles: readonly AppRole[]) {
 export const getStockOverviewFn = createServerFn({ method: "GET" }).handler(
   async (): Promise<StockOverviewData> => {
     const supabase = await getStockClient(allRoles);
-    const [itemsResult, locationsResult, balancesResult] = await Promise.all([
+    const [itemsResult, locationsResult, balancesResult, catalogResult] = await Promise.all([
       supabase.from("stock_items").select("*").eq("is_active", true).order("name"),
       supabase.from("stock_locations").select("*").eq("is_active", true).order("name"),
       supabase.from("stock_balances").select("*"),
+      supabase.from("stock_catalog_display").select("*"),
     ]);
-    if (itemsResult.error || locationsResult.error || balancesResult.error) {
+    if (itemsResult.error || locationsResult.error || balancesResult.error || catalogResult.error) {
       throw new Error("Unable to load stock balances");
     }
     const balances = new Map(
@@ -118,12 +119,16 @@ export const getStockOverviewFn = createServerFn({ method: "GET" }).handler(
         balance,
       ]),
     );
+    const catalog = new Map(
+      (catalogResult.data ?? []).map((entry) => [entry.stock_item_id, entry]),
+    );
     const locations = locationsResult.data ?? [];
     return {
       locations,
       rows: (itemsResult.data ?? []).flatMap((item) =>
         locations.map((location) => {
           const balance = balances.get(`${item.id}:${location.id}`);
+          const display = catalog.get(item.id);
           return {
             ...item,
             location_id: location.id,
@@ -131,6 +136,11 @@ export const getStockOverviewFn = createServerFn({ method: "GET" }).handler(
             physical_quantity: balance?.physical_quantity ?? 0,
             reserved_quantity: balance?.reserved_quantity ?? 0,
             available_quantity: balance?.available_quantity ?? 0,
+            display_product: display?.product_name ?? null,
+            display_format: display?.format_code ?? null,
+            display_sku: display?.sku ?? null,
+            display_oil: display?.oil_name ?? null,
+            used_by_products: display?.used_by_products ?? [],
           };
         }),
       ),

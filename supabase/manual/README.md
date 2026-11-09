@@ -73,6 +73,9 @@ Run these files in the Supabase SQL Editor, one at a time, and review each resul
 69. `112_customer_rls.sql` (Admin/Management CRM visibility, RPC-only writes, and Factory denial)
 70. `113_customer_document_integration.sql` (legal snapshots and customer delivery defaults for orders/documents)
 71. `114_customer_verification.sql` (rollback-only CRM, duplicate, search, deactivation, reference, and role tests)
+72. `115_stock_catalog_completion_foundation.sql` (tonne unit and product/format-safe stock mapping foundation)
+73. `116_stock_catalog_completion_seed.sql` (labels, prepared bottles, shared empty bottles, and exact 19-oil bulk master)
+74. `117_stock_catalog_completion_verification.sql` (read-only acceptance tests, ambiguity report, and liter/tonne audit)
 
 Files 001-004 and 006 contain production schema/security only. Test data is never mixed into them.
 
@@ -167,3 +170,12 @@ foreign keys and issued snapshots, generate concurrency-safe `CLI-000001` codes 
 and keep Factory users out of legal/commercial CRM data. Customer-specific prices are HT only and
 do not implement pricing formulas. File 114 is rollback-only, requires active FACOLUB users for
 all three roles, and leaves no test customers, notes, prices, documents, or numbering increments.
+
+Files 115-116 complete the official stock master without creating physical quantities. File 115
+adds the canonical tonne unit and mapping tables. File 116 creates or reuses product/format label
+and prepared-bottle references, maps all 41 SKUs to four shared physical empty bottles, installs
+exactly the supplied 19-oil FACOLUB bulk master in tonnes, and maps every official finished SKU.
+Label quantities are copied only from an existing active prepared-bottle recipe; unknown counts
+remain null for explicit confirmation. Tonne/liter conversion is also null by design and must be
+configured per lubricant. File 117 is read-only and reports both unresolved label quantities and
+active liter-based production recipes; it creates no test rows or stock movements.

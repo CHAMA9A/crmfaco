@@ -38,7 +38,7 @@ export type PlanningRequirementPreview = {
   stock_item_id: string;
   name: string;
   role: ProductionComponentRole;
-  unit: "piece" | "liter" | "kilogram";
+  unit: "piece" | "liter" | "kilogram" | "tonne";
   quantity_per_bottle: number;
   required_quantity: number;
   physical_quantity: number;
@@ -85,7 +85,7 @@ export type ProductionPlanReservation = {
   requirement_id: string;
   stock_item_id: string;
   stock_item_name: string;
-  unit: "piece" | "liter" | "kilogram";
+  unit: "piece" | "liter" | "kilogram" | "tonne";
   quantity: number;
   status: "active" | "released" | "consumed" | "cancelled";
   created_by: string;

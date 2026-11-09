@@ -213,7 +213,7 @@ export type StockItemCategory =
   | "finished_product"
   | "other";
 
-export type StockUnit = "piece" | "liter" | "kilogram";
+export type StockUnit = "piece" | "liter" | "kilogram" | "tonne";
 export type StockDirection = "in" | "out";
 export type StockMovementType =
   | "opening_balance"
@@ -247,6 +247,15 @@ export type StockItem = {
   notes: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type StockCatalogDisplay = {
+  stock_item_id: string;
+  product_name: string | null;
+  format_code: string | null;
+  sku: string | null;
+  oil_name: string | null;
+  used_by_products: string[] | null;
 };
 
 export type StockLocation = {
@@ -1214,6 +1223,10 @@ export type Database = {
     Views: {
       stock_balances: {
         Row: StockBalance;
+        Relationships: [];
+      };
+      stock_catalog_display: {
+        Row: StockCatalogDisplay;
         Relationships: [];
       };
     };

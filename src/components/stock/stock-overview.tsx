@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   History,
   MapPin,
+  Search,
   Settings2,
   SlidersHorizontal,
 } from "lucide-react";
@@ -56,11 +57,18 @@ function MobileStockCard({ row }: { row: StockOverviewRow }) {
     <article className="border border-border bg-card p-4 shadow-sm md:hidden">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="font-bold leading-5">{row.name}</h3>
+          <h3 className="font-bold leading-5">
+            {row.display_oil ?? row.display_product ?? row.display_format ?? row.name}
+          </h3>
           <p className="mt-1 text-xs text-muted-foreground">
             {row.code ? `${row.code} · ` : ""}
             {t(stockUnitLabels[row.unit])}
           </p>
+          {row.category === "empty_bottle" && row.used_by_products.length > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("Used by")}: {row.used_by_products.join(", ")}
+            </p>
+          )}
         </div>
         <StockStatusBadge status={getStockStatus(row.available_quantity, row.reserved_quantity)} />
       </div>
@@ -87,17 +95,35 @@ function MobileStockCard({ row }: { row: StockOverviewRow }) {
 function DesktopStockTable({ rows }: { rows: StockOverviewRow[] }) {
   const { language, t } = useLanguage();
   const locale = language === "fr" ? "fr-FR" : "en-US";
+  const category = rows[0]?.category;
   return (
     <div className="hidden overflow-x-auto border border-border bg-card md:block">
       <table className="w-full text-sm">
         <thead className="border-b bg-muted/50 text-left text-xs uppercase text-muted-foreground">
           <tr>
-            <th className="px-4 py-3">{t("Item")}</th>
+            {category === "finished_product" && <th className="px-4 py-3">{t("SKU")}</th>}
+            <th className="px-4 py-3">
+              {t(
+                category === "bulk_lubricant"
+                  ? "Oil"
+                  : category === "empty_bottle"
+                    ? "Format"
+                    : category === "label" ||
+                        category === "prepared_bottle" ||
+                        category === "finished_product"
+                      ? "Product"
+                      : "Item",
+              )}
+            </th>
+            {(category === "label" ||
+              category === "prepared_bottle" ||
+              category === "finished_product") && <th className="px-4 py-3">{t("Format")}</th>}
+            {category === "empty_bottle" && <th className="px-4 py-3">{t("Used by")}</th>}
             <th className="px-4 py-3 text-right">{t("Physical")}</th>
             <th className="px-4 py-3 text-right">{t("Reserved")}</th>
             <th className="px-4 py-3 text-right">{t("Available")}</th>
             <th className="px-4 py-3">{t("Unit")}</th>
-            <th className="px-4 py-3">{t("State")}</th>
+            <th className="px-4 py-3">{t("Status")}</th>
             <th className="px-4 py-3">{t("Threshold")}</th>
           </tr>
         </thead>
@@ -106,10 +132,33 @@ function DesktopStockTable({ rows }: { rows: StockOverviewRow[] }) {
             const low = isLowStock(row.available_quantity, row.minimum_stock);
             return (
               <tr key={`${row.id}:${row.location_id}`} className="border-b last:border-0">
+                {category === "finished_product" && (
+                  <td className="px-4 py-3 font-mono text-xs font-semibold">
+                    {row.display_sku ?? row.code ?? "—"}
+                  </td>
+                )}
                 <td className="px-4 py-3">
-                  <p className="font-bold">{row.name}</p>
-                  {row.code && <p className="mt-0.5 text-xs text-muted-foreground">{row.code}</p>}
+                  <p className="font-bold">
+                    {category === "bulk_lubricant"
+                      ? (row.display_oil ?? row.name)
+                      : category === "empty_bottle"
+                        ? (row.display_format ?? row.name)
+                        : (row.display_product ?? row.name)}
+                  </p>
+                  {category !== "finished_product" && row.code && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">{row.code}</p>
+                  )}
                 </td>
+                {(category === "label" ||
+                  category === "prepared_bottle" ||
+                  category === "finished_product") && (
+                  <td className="px-4 py-3 font-semibold">{row.display_format ?? "—"}</td>
+                )}
+                {category === "empty_bottle" && (
+                  <td className="max-w-xs px-4 py-3 text-xs text-muted-foreground">
+                    {row.used_by_products.join(", ") || "—"}
+                  </td>
+                )}
                 <td className="px-4 py-3 text-right font-semibold tabular-nums">
                   {formatStockQuantity(row.physical_quantity, locale)}
                 </td>
@@ -151,14 +200,33 @@ export function StockOverview({ data }: { data: StockOverviewData }) {
   const { profile } = useAuthenticatedUser();
   const { t } = useLanguage();
   const [locationId, setLocationId] = useState(data.locations[0]?.id ?? "");
-  const rows = useMemo(
+  const [search, setSearch] = useState("");
+  const locationRows = useMemo(
     () => data.rows.filter((row) => !locationId || row.location_id === locationId),
     [data.rows, locationId],
   );
-  const lowCount = rows.filter((row) =>
+  const rows = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    if (!query) return locationRows;
+    return locationRows.filter((row) =>
+      [
+        row.code,
+        row.name,
+        row.display_sku,
+        row.display_product,
+        row.display_format,
+        row.display_oil,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase()
+        .includes(query),
+    );
+  }, [locationRows, search]);
+  const lowCount = locationRows.filter((row) =>
     isLowStock(row.available_quantity, row.minimum_stock),
   ).length;
-  const reservedCount = rows.filter((row) => row.reserved_quantity > 0).length;
+  const reservedCount = locationRows.filter((row) => row.reserved_quantity > 0).length;
 
   return (
     <>
@@ -198,7 +266,7 @@ export function StockOverview({ data }: { data: StockOverviewData }) {
           <p className="text-[10px] font-bold uppercase text-muted-foreground">
             {t("Active items")}
           </p>
-          <p className="mt-1 text-xl font-black tabular-nums">{rows.length}</p>
+          <p className="mt-1 text-xl font-black tabular-nums">{locationRows.length}</p>
         </div>
         <div className="border-l-4 border-warning bg-card p-4 shadow-sm">
           <p className="text-[10px] font-bold uppercase text-muted-foreground">{t("Reserved")}</p>
@@ -229,10 +297,26 @@ export function StockOverview({ data }: { data: StockOverviewData }) {
         </label>
       )}
 
+      <label className="relative mb-7 block max-w-xl">
+        <span className="sr-only">{t("Search stock")}</span>
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t("Search SKU, product, format, or oil")}
+          className="h-11 w-full rounded-md border bg-background pl-10 pr-3 text-sm"
+        />
+      </label>
+
       {rows.length === 0 ? (
         <EmptyState
-          title="No stock items configured"
-          description="An Admin can create the first stock item in Stock item settings."
+          title={search ? "No matching stock items" : "No stock items configured"}
+          description={
+            search
+              ? "Try another SKU, product, format, or oil."
+              : "An Admin can create the first stock item in Stock item settings."
+          }
           icon={Boxes}
         />
       ) : (
