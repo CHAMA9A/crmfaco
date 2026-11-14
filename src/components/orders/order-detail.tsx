@@ -118,7 +118,9 @@ export function OrderDetail({ data }: { data: OrderDetailData }) {
             <thead className="bg-secondary text-left text-xs uppercase">
               <tr>
                 <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3 text-right">Quantité</th>
+                <th className="px-4 py-3 text-right">Ordered</th>
+                <th className="px-4 py-3 text-right">Dispatched</th>
+                <th className="px-4 py-3 text-right">Remaining</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -126,10 +128,38 @@ export function OrderDetail({ data }: { data: OrderDetailData }) {
                 <tr key={item.id}>
                   <td className="px-4 py-3">{item.description}</td>
                   <td className="px-4 py-3 text-right font-bold">{item.quantity}</td>
+                  <td className="px-4 py-3 text-right font-bold">{item.dispatched ?? "0"}</td>
+                  <td className="px-4 py-3 text-right font-black text-primary">
+                    {item.remaining ?? item.quantity}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+      <section className="mt-7">
+        <h2 className="mb-3 text-lg font-black">Dispatch / Fulfillment</h2>
+        <div className="border bg-card">
+          {data.dispatches.length ? (
+            data.dispatches.map((dispatch) => (
+              <a
+                key={dispatch.id}
+                href={`/facolub/dispatch/${dispatch.id}`}
+                className="flex items-center justify-between gap-4 border-b p-4 last:border-0 hover:bg-secondary/50"
+              >
+                <div>
+                  <p className="font-black">{dispatch.number ?? "Draft dispatch"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {dispatch.date} · {dispatch.status}
+                  </p>
+                </div>
+                <p className="text-lg font-black">{dispatch.quantity}</p>
+              </a>
+            ))
+          ) : (
+            <p className="p-5 text-sm text-muted-foreground">No dispatch recorded yet.</p>
+          )}
         </div>
       </section>
       <section className="mt-7">

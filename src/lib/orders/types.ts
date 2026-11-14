@@ -5,6 +5,8 @@ export type OrderLine = {
   description: string;
   quantity: string;
   position: number;
+  dispatched?: string;
+  remaining?: string;
 };
 
 export type OrderDocumentSummary = {
@@ -71,6 +73,13 @@ export type OrderDetailData = {
   invoice: (OrderDocumentSummary & { prices_confirmed_at: string | null }) | null;
   delivery_note: OrderDocumentSummary | null;
   transport_note: OrderDocumentSummary | null;
+  dispatches: Array<{
+    id: string;
+    number: string | null;
+    date: string;
+    status: "draft" | "confirmed" | "cancelled";
+    quantity: string;
+  }>;
 };
 
 export type DeliveryNoteDocument = {

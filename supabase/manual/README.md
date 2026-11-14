@@ -179,3 +179,8 @@ Label quantities are copied only from an existing active prepared-bottle recipe;
 remain null for explicit confirmation. Tonne/liter conversion is also null by design and must be
 configured per lubricant. File 117 is read-only and reports both unresolved label quantities and
 active liter-based production recipes; it creates no test rows or stock movements.
+
+Files 118-121 implement S8 physical loading/dispatch and must be run in order after File 117.
+They add partial order fulfillment, private photo evidence, vehicle traceability, atomic and
+idempotent finished-product stock OUT, and one BL/BT pair per confirmed dispatch while preserving
+historical documents. Invoice quantity semantics remain order-based. File 122 is read-only.

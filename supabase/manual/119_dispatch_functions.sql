@@ -179,6 +179,9 @@ begin
     perform 1 from public.orders o where o.id=target.order_id and o.status not in ('draft','cancelled') for update;
     if not found then raise exception 'Dispatch order is unavailable' using errcode='23514'; end if;
   end if;
+  -- Number allocation is inside this transaction, so any later validation error
+  -- rolls the counter back together with the dispatch.
+  target.dispatch_number := public.allocate_dispatch_number(target.dispatch_date);
   -- Sorted transaction advisory locks serialize the same physical item/location across different orders.
   for line in select distinct on (i.stock_item_id) i.* from public.dispatch_items i
     where i.dispatch_id=target.id order by i.stock_item_id, i.id loop
@@ -212,7 +215,7 @@ begin
     insert into public.stock_movements(stock_item_id,location_id,movement_type,quantity,direction,
       reference_type,reference_id,reason,created_by,metadata)
     values(line.stock_item_id,target.location_id,'dispatch',line.quantity_loaded,'out','dispatch',target.id,
-      'Physical loading '||coalesce(target.dispatch_number,'draft'),actor,
+      'Physical loading '||target.dispatch_number,actor,
       jsonb_build_object('dispatch_id',target.id,'dispatch_item_id',line.id,'order_id',target.order_id,
         'customer_id',target.customer_id,'destination',target.destination_name))
     returning id into movement_id;
@@ -220,7 +223,7 @@ begin
       'movement_id',movement_id,'stock_item_id',line.stock_item_id,'physical_before',physical,
       'quantity_loaded',line.quantity_loaded,'physical_after',physical-line.quantity_loaded));
   end loop;
-  update public.dispatches set dispatch_number=public.allocate_dispatch_number(target.dispatch_date),
+  update public.dispatches set dispatch_number=target.dispatch_number,
     status='confirmed',confirmed_by=actor,confirmed_at=now() where id=target.id returning * into target;
   return jsonb_build_object('dispatch_id',target.id,'dispatch_number',target.dispatch_number,
     'status','confirmed','confirmed_at',target.confirmed_at,'idempotent_retry',false,'balances',balances);

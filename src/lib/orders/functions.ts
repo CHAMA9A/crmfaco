@@ -283,11 +283,15 @@ export const getOrderDetailFn = createServerFn({ method: "GET" })
         .from("delivery_notes")
         .select("id, delivery_note_number, status")
         .eq("order_id", data.orderId)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle(),
       supabase
         .from("transport_notes")
         .select("id, transport_note_number, status")
         .eq("order_id", data.orderId)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle(),
     ]);
     if (error || !order) throw new Error("Order not found");
@@ -300,9 +304,48 @@ export const getOrderDetailFn = createServerFn({ method: "GET" })
         .single();
       customerName = customer?.company_name ?? "Client";
     }
+    const { data: dispatchRows, error: dispatchError } = await supabase
+      .from("dispatches")
+      .select("id, dispatch_number, dispatch_date, status")
+      .eq("order_id", data.orderId)
+      .order("created_at", { ascending: false });
+    if (dispatchError) throw new Error("Unable to load order fulfillment");
+    const dispatchIds = (dispatchRows ?? []).map((row) => row.id);
+    const dispatchedResult = dispatchIds.length
+      ? await supabase
+          .from("dispatch_items")
+          .select("dispatch_id, order_item_id, quantity_loaded")
+          .in("dispatch_id", dispatchIds)
+      : { data: [], error: null };
+    if (dispatchedResult.error) throw new Error("Unable to load dispatched quantities");
+    const confirmedIds = new Set(
+      (dispatchRows ?? []).filter((row) => row.status === "confirmed").map((row) => row.id),
+    );
+    const lineTotals = new Map<string, number>();
+    const dispatchTotals = new Map<string, number>();
+    for (const item of dispatchedResult.data ?? []) {
+      dispatchTotals.set(
+        item.dispatch_id,
+        (dispatchTotals.get(item.dispatch_id) ?? 0) + Number(item.quantity_loaded),
+      );
+      if (confirmedIds.has(item.dispatch_id) && item.order_item_id) {
+        lineTotals.set(
+          item.order_item_id,
+          (lineTotals.get(item.order_item_id) ?? 0) + Number(item.quantity_loaded),
+        );
+      }
+    }
     return {
       order: { ...order, customer_name: customerName },
-      items: (items ?? []).map((item) => ({ ...item, quantity: String(item.quantity) })),
+      items: (items ?? []).map((item) => {
+        const dispatched = lineTotals.get(item.id) ?? 0;
+        return {
+          ...item,
+          quantity: String(item.quantity),
+          dispatched: String(dispatched),
+          remaining: String(Math.max(0, Number(item.quantity) - dispatched)),
+        };
+      }),
       invoice: invoice
         ? {
             id: invoice.id,
@@ -317,6 +360,13 @@ export const getOrderDetailFn = createServerFn({ method: "GET" })
       transport_note: transport
         ? { id: transport.id, number: transport.transport_note_number, status: transport.status }
         : null,
+      dispatches: (dispatchRows ?? []).map((row) => ({
+        id: row.id,
+        number: row.dispatch_number,
+        date: row.dispatch_date,
+        status: row.status,
+        quantity: String(dispatchTotals.get(row.id) ?? 0),
+      })),
     };
   });
 
@@ -395,20 +445,37 @@ export const getDeliveryNoteDocumentFn = createServerFn({ method: "GET" })
   .validator((input: unknown) => uuidRequest.parse(input))
   .handler(async ({ data }): Promise<DeliveryNoteDocument> => {
     const supabase = await getManagerClient();
-    const [{ data: note, error }, { data: order }, { data: items }] = await Promise.all([
-      supabase.from("delivery_notes").select("*").eq("order_id", data.orderId).single(),
-      supabase.from("orders").select("order_number").eq("id", data.orderId).single(),
+    const [{ data: note, error }, { data: order }] = await Promise.all([
       supabase
-        .from("order_items")
-        .select("id, description, quantity, position")
+        .from("delivery_notes")
+        .select("*")
         .eq("order_id", data.orderId)
-        .order("position"),
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single(),
+      supabase.from("orders").select("order_number").eq("id", data.orderId).single(),
     ]);
     if (error || !note || !order) throw new Error("Delivery note not found");
+    const items = note.dispatch_id
+      ? await supabase
+          .from("delivery_note_items")
+          .select("id, description_snapshot, quantity, position")
+          .eq("delivery_note_id", note.id)
+          .order("position")
+      : await supabase
+          .from("order_items")
+          .select("id, description, quantity, position")
+          .eq("order_id", data.orderId)
+          .order("position");
     return {
       ...note,
       order_number: order.order_number ?? "Commande",
-      items: (items ?? []).map((i) => ({ ...i, quantity: String(i.quantity) })),
+      items: (items.data ?? []).map((i) => ({
+        id: i.id,
+        description: "description_snapshot" in i ? i.description_snapshot : i.description,
+        quantity: String(i.quantity),
+        position: i.position,
+      })),
     };
   });
 
@@ -416,19 +483,36 @@ export const getTransportNoteDocumentFn = createServerFn({ method: "GET" })
   .validator((input: unknown) => uuidRequest.parse(input))
   .handler(async ({ data }): Promise<TransportNoteDocument> => {
     const supabase = await getManagerClient();
-    const [{ data: note, error }, { data: order }, { data: items }] = await Promise.all([
-      supabase.from("transport_notes").select("*").eq("order_id", data.orderId).single(),
-      supabase.from("orders").select("order_number").eq("id", data.orderId).single(),
+    const [{ data: note, error }, { data: order }] = await Promise.all([
       supabase
-        .from("order_items")
-        .select("id, description, quantity, position")
+        .from("transport_notes")
+        .select("*")
         .eq("order_id", data.orderId)
-        .order("position"),
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single(),
+      supabase.from("orders").select("order_number").eq("id", data.orderId).single(),
     ]);
     if (error || !note || !order) throw new Error("Transport note not found");
+    const items = note.dispatch_id
+      ? await supabase
+          .from("transport_note_items")
+          .select("id, description_snapshot, quantity, position")
+          .eq("transport_note_id", note.id)
+          .order("position")
+      : await supabase
+          .from("order_items")
+          .select("id, description, quantity, position")
+          .eq("order_id", data.orderId)
+          .order("position");
     return {
       ...note,
       order_number: order.order_number ?? "Commande",
-      items: (items ?? []).map((i) => ({ ...i, quantity: String(i.quantity) })),
+      items: (items.data ?? []).map((i) => ({
+        id: i.id,
+        description: "description_snapshot" in i ? i.description_snapshot : i.description,
+        quantity: String(i.quantity),
+        position: i.position,
+      })),
     };
   });

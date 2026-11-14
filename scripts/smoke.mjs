@@ -28,6 +28,8 @@ const protectedRoutes = [
   "/facolub/production",
   "/facolub/production/00000000-0000-4000-8000-000000000001",
   "/facolub/dispatch",
+  "/facolub/dispatch/history",
+  "/facolub/dispatch/00000000-0000-4000-8000-000000000001",
   "/facolub/analytics",
   "/facolub/customers",
   "/facolub/customers/new",

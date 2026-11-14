@@ -110,6 +110,9 @@ export type InvoiceItem = {
 
 export type OrderStatus = "draft" | "confirmed" | "documents_ready" | "completed" | "cancelled";
 export type DocumentStatus = "draft" | "issued" | "cancelled";
+export type DispatchStatus = "draft" | "confirmed" | "cancelled";
+export type DispatchDestinationType = "customer" | "internal";
+export type DispatchAttachmentCategory = "goods" | "vehicle" | "registration" | "other";
 
 export type Order = {
   id: string;
@@ -182,6 +185,7 @@ export type DeliveryNote = {
   cancelled_at: string | null;
   created_at: string;
   updated_at: string;
+  dispatch_id: string | null;
 };
 
 export type TransportNote = {
@@ -201,6 +205,77 @@ export type TransportNote = {
   cancelled_at: string | null;
   created_at: string;
   updated_at: string;
+  dispatch_id: string | null;
+};
+
+export type DeliveryNoteItem = {
+  id: string;
+  delivery_note_id: string;
+  dispatch_item_id: string | null;
+  sku_snapshot: string;
+  description_snapshot: string;
+  quantity: number;
+  position: number;
+  created_at: string;
+};
+export type TransportNoteItem = {
+  id: string;
+  transport_note_id: string;
+  dispatch_item_id: string | null;
+  sku_snapshot: string;
+  description_snapshot: string;
+  quantity: number;
+  position: number;
+  created_at: string;
+};
+
+export type Dispatch = {
+  id: string;
+  dispatch_number: string | null;
+  order_id: string | null;
+  customer_id: string | null;
+  location_id: string;
+  dispatch_date: string;
+  destination_type: DispatchDestinationType;
+  destination_name: string;
+  delivery_address_snapshot: string | null;
+  delivery_city_snapshot: string | null;
+  delivery_contact_snapshot: string | null;
+  status: DispatchStatus;
+  vehicle_description: string | null;
+  vehicle_registration: string | null;
+  driver_name: string | null;
+  driver_phone: string | null;
+  transport_company: string | null;
+  notes: string | null;
+  confirmed_at: string | null;
+  confirmed_by: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+};
+export type DispatchItem = {
+  id: string;
+  dispatch_id: string;
+  order_item_id: string | null;
+  product_format_id: string;
+  stock_item_id: string;
+  sku_snapshot: string;
+  description_snapshot: string;
+  ordered_quantity_snapshot: number | null;
+  quantity_loaded: number;
+  created_at: string;
+};
+export type DispatchAttachment = {
+  id: string;
+  dispatch_id: string;
+  category: DispatchAttachmentCategory;
+  storage_path: string;
+  file_name: string | null;
+  mime_type: string;
+  file_size: number;
+  uploaded_by: string;
+  uploaded_at: string;
 };
 
 export type StockItemCategory =
@@ -892,6 +967,43 @@ export type Database = {
         Update: Partial<Omit<TransportNote, "id" | "created_at">>;
         Relationships: [];
       };
+      delivery_note_items: {
+        Row: DeliveryNoteItem;
+        Insert: Omit<DeliveryNoteItem, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<DeliveryNoteItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      transport_note_items: {
+        Row: TransportNoteItem;
+        Insert: Omit<TransportNoteItem, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<TransportNoteItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      dispatches: {
+        Row: Dispatch;
+        Insert: Omit<Dispatch, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Dispatch, "id" | "created_at">>;
+        Relationships: [];
+      };
+      dispatch_items: {
+        Row: DispatchItem;
+        Insert: Omit<DispatchItem, "id" | "created_at"> & { id?: string; created_at?: string };
+        Update: Partial<Omit<DispatchItem, "id" | "created_at">>;
+        Relationships: [];
+      };
+      dispatch_attachments: {
+        Row: DispatchAttachment;
+        Insert: Omit<DispatchAttachment, "id" | "uploaded_at"> & {
+          id?: string;
+          uploaded_at?: string;
+        };
+        Update: Partial<Omit<DispatchAttachment, "id" | "uploaded_at">>;
+        Relationships: [];
+      };
       order_number_sequences: {
         Row: { sequence_date: string; last_value: number };
         Insert: { sequence_date: string; last_value: number };
@@ -1231,6 +1343,61 @@ export type Database = {
       };
     };
     Functions: {
+      get_factory_dispatch_missions: { Args: Record<PropertyKey, never>; Returns: Json };
+      create_dispatch_draft: {
+        Args: {
+          target_order_id: string | null;
+          target_location_id: string;
+          target_destination_type?: DispatchDestinationType;
+          target_destination_name?: string | null;
+          target_delivery_address?: string | null;
+          target_delivery_city?: string | null;
+          target_delivery_contact?: string | null;
+        };
+        Returns: Dispatch;
+      };
+      get_dispatch_detail: { Args: { target_dispatch_id: string }; Returns: Json };
+      get_order_dispatch_remaining: {
+        Args: { target_order_id: string };
+        Returns: Array<{
+          order_item_id: string;
+          product_format_id: string;
+          sku: string;
+          description: string;
+          ordered: number;
+          dispatched: number;
+          remaining: number;
+        }>;
+      };
+      update_dispatch_draft: {
+        Args: {
+          target_dispatch_id: string;
+          target_vehicle_description: string | null;
+          target_vehicle_registration: string | null;
+          target_driver_name: string | null;
+          target_driver_phone: string | null;
+          target_transport_company: string | null;
+          target_notes: string | null;
+        };
+        Returns: Dispatch;
+      };
+      replace_dispatch_items: {
+        Args: { target_dispatch_id: string; target_items: Json };
+        Returns: undefined;
+      };
+      attach_dispatch_photo: {
+        Args: {
+          target_dispatch_id: string;
+          target_category: DispatchAttachmentCategory;
+          target_storage_path: string;
+          target_file_name: string;
+          target_mime_type: string;
+          target_file_size: number;
+        };
+        Returns: DispatchAttachment;
+      };
+      confirm_dispatch: { Args: { target_dispatch_id: string }; Returns: Json };
+      prepare_dispatch_documents: { Args: { target_dispatch_id: string }; Returns: Json };
       current_app_role: { Args: Record<PropertyKey, never>; Returns: AppRole | null };
       has_environment_access: { Args: { environment_code: string }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
@@ -1903,6 +2070,9 @@ export type Database = {
       invoice_status: InvoiceStatus;
       order_status: OrderStatus;
       document_status: DocumentStatus;
+      dispatch_status: DispatchStatus;
+      dispatch_destination_type: DispatchDestinationType;
+      dispatch_attachment_category: DispatchAttachmentCategory;
       stock_item_category: StockItemCategory;
       stock_unit: StockUnit;
       stock_direction: StockDirection;
